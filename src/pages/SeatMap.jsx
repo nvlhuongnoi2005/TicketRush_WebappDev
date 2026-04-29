@@ -62,10 +62,10 @@ function SeatMap() {
 
   if (!event) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-white md:px-8">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+      <div className="mx-auto max-w-7xl px-4 py-16 text-slate-900 md:px-8">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
           <h1 className="text-3xl font-semibold">Seat map not found</h1>
-          <Link to="/" className="mt-6 inline-flex rounded-full bg-cyan-400 px-4 py-2 font-semibold text-slate-950">
+          <Link to="/" className="mt-6 inline-flex rounded-full bg-sky-500 px-4 py-2 font-semibold text-white">
             Back to home
           </Link>
         </div>
@@ -93,20 +93,20 @@ function SeatMap() {
   const countdown = lockExpiresAt ? formatDuration(lockExpiresAt - now) : '10:00'
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className="bg-slate-50 text-slate-900">
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Seat selection</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Seat selection</p>
             <h1 className="text-3xl font-semibold">{event.title}</h1>
           </div>
-          <Link to={`/events/${event.id}`} className="rounded-full border border-white/15 px-4 py-2 text-sm font-medium">
+          <Link to={`/events/${event.id}`} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
             Back to event
           </Link>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
             <div className="mb-4 flex flex-wrap gap-2">
               {event.sections.map((section) => (
                 <button
@@ -117,7 +117,7 @@ function SeatMap() {
                     setLockExpiresAt(null)
                   }}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    selectedSectionId === section.id ? 'bg-cyan-400 text-slate-950' : 'bg-white/10 text-white'
+                    selectedSectionId === section.id ? 'bg-sky-500 text-white' : 'bg-slate-100 text-slate-700'
                   }`}
                 >
                   {section.name}
@@ -125,14 +125,14 @@ function SeatMap() {
               ))}
             </div>
 
-            <div className="mb-5 flex flex-wrap gap-3 text-xs text-slate-300">
-              <span className="rounded-full bg-emerald-500/20 px-2.5 py-1">Available</span>
-              <span className="rounded-full bg-amber-400/20 px-2.5 py-1">Locked</span>
-              <span className="rounded-full bg-rose-500/20 px-2.5 py-1">Sold</span>
-              <span className="rounded-full bg-emerald-700/30 px-2.5 py-1">Locked by me</span>
+            <div className="mb-5 flex flex-wrap gap-3 text-xs text-slate-600">
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-700">Available</span>
+              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-amber-700">Locked</span>
+              <span className="rounded-full bg-rose-100 px-2.5 py-1 text-rose-700">Sold</span>
+              <span className="rounded-full bg-emerald-200 px-2.5 py-1 text-emerald-800">Locked by me</span>
             </div>
 
-            <div className="mb-6 rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm text-slate-300">
+            <div className="mb-6 rounded-2xl bg-slate-100 px-4 py-3 text-center text-sm text-slate-600">
               Screen
             </div>
 
@@ -147,7 +147,7 @@ function SeatMap() {
                     key={seat.id}
                     onClick={() => toggleSeat(seat)}
                     className={`min-w-0 rounded-md px-1.5 py-1.5 text-[8px] leading-none font-medium transition ${
-                      isSelected ? 'ring-2 ring-cyan-300 ring-offset-2 ring-offset-slate-950' : ''
+                      isSelected ? 'ring-2 ring-sky-300 ring-offset-2 ring-offset-white' : ''
                     } ${seatStyles[seat.status]}`}
                     title={`${seat.label} - ${seat.price.toLocaleString()} VND`}
                   >
@@ -158,40 +158,40 @@ function SeatMap() {
             </div>
           </div>
 
-          <aside className="space-y-5 rounded-3xl border border-white/10 bg-white/5 p-5">
+          <aside className="space-y-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
             <div>
               <h2 className="text-xl font-semibold">Selected seats</h2>
-              <p className="text-sm text-slate-400">Click a seat to lock it immediately for 10 minutes.</p>
+              <p className="text-sm text-slate-600">Click a seat to lock it immediately for 10 minutes.</p>
             </div>
             <div className="space-y-3">
               {selectedSeats.length ? (
                 selectedSeats.map((seat) => (
-                  <div key={seat.id} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                  <div key={seat.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="flex items-center justify-between">
                       <p className="font-medium">{seat.label}</p>
-                      <p className="text-sm text-slate-300">{seat.price.toLocaleString()} VND</p>
+                      <p className="text-sm text-slate-600">{seat.price.toLocaleString()} VND</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-white/15 bg-slate-950 p-4 text-sm text-slate-400">
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
                   No seats selected yet.
                 </div>
               )}
             </div>
-            <div className="rounded-2xl bg-slate-950 p-4">
-              <p className="text-sm text-slate-400">Total</p>
-              <p className="text-2xl font-semibold text-cyan-300">{totalAmount.toLocaleString()} VND</p>
+            <div className="rounded-2xl bg-sky-50 p-4">
+              <p className="text-sm text-slate-500">Total</p>
+              <p className="text-2xl font-semibold text-sky-700">{totalAmount.toLocaleString()} VND</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-300">
-              <p className="text-slate-400">Lock timer</p>
-              <p className="mt-1 text-lg font-semibold text-white">{countdown}</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="text-slate-500">Lock timer</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">{countdown}</p>
             </div>
             <div className="grid gap-3">
               <Link
                 to="/checkout"
                 state={{ eventId: event.id, seats: selectedSeats, totalAmount }}
-                className="rounded-full bg-cyan-400 px-5 py-3 text-center font-semibold text-slate-950 transition hover:bg-cyan-300"
+                className="rounded-full bg-sky-500 px-5 py-3 text-center font-semibold text-white transition hover:bg-sky-400"
               >
                 Proceed to checkout
               </Link>

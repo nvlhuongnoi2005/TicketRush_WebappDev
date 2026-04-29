@@ -33,10 +33,10 @@ function Checkout() {
 
   if (!event) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-white md:px-8">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+      <div className="mx-auto max-w-7xl px-4 py-16 text-slate-900 md:px-8">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
           <h1 className="text-3xl font-semibold">Checkout not available</h1>
-          <Link to="/" className="mt-6 inline-flex rounded-full bg-cyan-400 px-4 py-2 font-semibold text-slate-950">
+          <Link to="/" className="mt-6 inline-flex rounded-full bg-sky-500 px-4 py-2 font-semibold text-white">
             Back to home
           </Link>
         </div>
@@ -100,57 +100,57 @@ function Checkout() {
   }
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className="bg-slate-50 text-slate-900">
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="mb-6">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Checkout</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Checkout</p>
           <h1 className="text-3xl font-semibold">Complete your order</h1>
         </div>
 
         {message && (
-          <div className="mb-6 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-100">
+          <div className="mb-6 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-700">
             {message}
           </div>
         )}
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-5 rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className="space-y-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
             <h2 className="text-xl font-semibold">Order summary</h2>
             <div className="space-y-3">
               {summaryItems.length ? (
                 summaryItems.map((seat) => (
-                  <div key={seat.id} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                  <div key={seat.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-medium">{seat.label}</p>
-                        <p className="text-sm text-slate-400">{event?.title}</p>
+                        <p className="text-sm text-slate-600">{event?.title}</p>
                       </div>
                       <p className="font-semibold">{seat.price.toLocaleString()} VND</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="rounded-2xl border border-dashed border-white/15 bg-slate-950 p-4 text-sm text-slate-400">
+                <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                   No seat data received. Please return to the seat map.
                 </p>
               )}
             </div>
           </div>
 
-          <aside className="space-y-5 rounded-3xl border border-white/10 bg-white/5 p-5">
-            <div className="rounded-2xl bg-slate-950 p-4">
-              <p className="text-sm text-slate-400">Total amount</p>
-              <p className="text-3xl font-semibold text-cyan-300">{totalAmount.toLocaleString()} VND</p>
+          <aside className="space-y-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
+            <div className="rounded-2xl bg-sky-50 p-4">
+              <p className="text-sm text-slate-500">Total amount</p>
+              <p className="text-3xl font-semibold text-sky-700">{totalAmount.toLocaleString()} VND</p>
             </div>
 
-            <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+            <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <h3 className="font-semibold">Buyer information</h3>
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">Name</label>
                 <input
                   value={buyerName}
                   onChange={(e) => setBuyerName(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white outline-none"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none"
                 />
               </div>
               <div>
@@ -158,7 +158,7 @@ function Checkout() {
                 <input
                   value={buyerEmail}
                   onChange={(e) => setBuyerEmail(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white outline-none"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none"
                 />
               </div>
             </div>
@@ -167,18 +167,18 @@ function Checkout() {
               <button
                 type="button"
                 onClick={handleCreateOrder}
-                className="rounded-full bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="rounded-full bg-emerald-500 px-5 py-3 font-semibold text-white transition hover:bg-emerald-400"
               >
                 Create order
               </button>
               <button
                 type="button"
                 onClick={handleConfirmPayment}
-                className="rounded-full bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                className="rounded-full bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-400"
               >
                 Confirm payment
               </button>
-              <Link to="/tickets" className="rounded-full border border-white/15 px-5 py-3 text-center font-semibold">
+              <Link to="/tickets" className="rounded-full border border-slate-200 px-5 py-3 text-center font-semibold text-slate-900">
                 Go to my tickets
               </Link>
             </div>

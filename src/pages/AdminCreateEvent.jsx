@@ -110,26 +110,26 @@ function AdminCreateEvent() {
   }
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className="bg-slate-50 text-slate-900">
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Admin create event</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Admin create event</p>
             <h1 className="text-3xl font-semibold">Create a new event</h1>
           </div>
-          <Link to="/admin/events" className="rounded-full border border-white/15 px-4 py-2 text-sm font-medium">
+          <Link to="/admin/events" className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-900">
             Back to events
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-200">
+          <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
             <h2 className="mb-4 text-xl font-semibold">Event information</h2>
             <div className="grid gap-3">
               {[
@@ -150,7 +150,7 @@ function AdminCreateEvent() {
                     value={form[name]}
                     onChange={handleChange}
                     type={name.includes('date') || name.includes('start') || name.includes('end') ? 'datetime-local' : 'text'}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                   />
                 </div>
               ))}
@@ -161,7 +161,7 @@ function AdminCreateEvent() {
                   name="status"
                   value={form.status}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 >
                   <option value="draft">Draft</option>
                   <option value="on_sale">On sale</option>
@@ -171,7 +171,7 @@ function AdminCreateEvent() {
                 </select>
               </div>
 
-              <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm">
+              <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
                 <input type="checkbox" name="queue_enabled" checked={form.queue_enabled} onChange={handleChange} />
                 Enable virtual queue
               </label>
@@ -184,7 +184,7 @@ function AdminCreateEvent() {
                     type="number"
                     value={form[name]}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                   />
                 </div>
               ))}
@@ -196,17 +196,17 @@ function AdminCreateEvent() {
                   value={form.description}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 />
               </div>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold">Seat configuration</h2>
-                <p className="text-sm text-slate-400">Add sections here before creating the event.</p>
+                <p className="text-sm text-slate-600">Add sections here before creating the event.</p>
               </div>
               <span className="text-xs uppercase tracking-[0.2em] text-slate-500">{form.sections.length} section(s)</span>
             </div>
@@ -218,7 +218,7 @@ function AdminCreateEvent() {
                   name="name"
                   value={sectionDraft.name}
                   onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                   placeholder="VIP"
                 />
               </div>
@@ -229,7 +229,7 @@ function AdminCreateEvent() {
                   type="number"
                   value={sectionDraft.rows}
                   onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 />
               </div>
               <div>
@@ -239,7 +239,7 @@ function AdminCreateEvent() {
                   type="number"
                   value={sectionDraft.cols}
                   onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 />
               </div>
               <div>
@@ -249,7 +249,7 @@ function AdminCreateEvent() {
                   type="number"
                   value={sectionDraft.price}
                   onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 />
               </div>
               <div>
@@ -259,7 +259,7 @@ function AdminCreateEvent() {
                   type="text"
                   value={sectionDraft.color}
                   onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                   placeholder="#22c55e"
                 />
               </div>
@@ -270,7 +270,7 @@ function AdminCreateEvent() {
                   type="number"
                   value={sectionDraft.available_seats}
                   onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 />
               </div>
             </div>
@@ -278,7 +278,7 @@ function AdminCreateEvent() {
             <button
               type="button"
               onClick={addSectionToForm}
-              className="mt-4 rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950"
+              className="mt-4 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white"
             >
               Add section
             </button>
@@ -286,32 +286,32 @@ function AdminCreateEvent() {
             <div className="mt-4 grid gap-3">
               {form.sections.length ? (
                 form.sections.map((section) => (
-                  <div key={section.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+                  <div key={section.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
                     <div>
                       <p className="font-semibold" style={{ color: section.color }}>
                         {section.name}
                       </p>
-                      <p className="text-slate-400">
+                      <p className="text-slate-600">
                         {section.rows} rows × {section.cols} cols · {section.price.toLocaleString()} VND · {section.available_seats}/{section.total_seats} seats
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeSection(section.id)}
-                      className="rounded-full bg-rose-400 px-3 py-2 text-xs font-semibold text-white"
+                      className="rounded-full bg-rose-500 px-3 py-2 text-xs font-semibold text-white"
                     >
                       Remove
                     </button>
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-4 text-sm text-slate-400">
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
                   No seat sections added yet.
                 </div>
               )}
             </div>
 
-            <button type="submit" className="mt-5 w-full rounded-full bg-cyan-400 px-5 py-3 font-semibold text-slate-950">
+            <button type="submit" className="mt-5 w-full rounded-full bg-sky-500 px-5 py-3 font-semibold text-white">
               Create event
             </button>
           </div>

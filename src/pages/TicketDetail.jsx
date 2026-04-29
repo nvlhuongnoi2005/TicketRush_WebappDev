@@ -7,10 +7,10 @@ function TicketDetail() {
 
   if (!ticket) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-white md:px-8">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+      <div className="mx-auto max-w-7xl px-4 py-16 text-slate-900 md:px-8">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
           <h1 className="text-3xl font-semibold">Ticket not found</h1>
-          <Link to="/tickets" className="mt-6 inline-flex rounded-full bg-cyan-400 px-4 py-2 font-semibold text-slate-950">
+          <Link to="/tickets" className="mt-6 inline-flex rounded-full bg-sky-500 px-4 py-2 font-semibold text-white">
             Back to tickets
           </Link>
         </div>
@@ -26,18 +26,18 @@ function TicketDetail() {
   }
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className="bg-slate-50 text-slate-900">
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-3xl border border-white/10 bg-white p-6">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
             <img src={ticket.qr_image_url} alt={ticket.qr_data} className="mx-auto h-64 w-64 rounded-2xl" />
             <p className="mt-4 text-center text-xs text-slate-500">Scan at the venue entrance</p>
           </div>
 
-          <div className="space-y-5 rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Ticket details</p>
+          <div className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+            <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Ticket details</p>
             <h1 className="text-3xl font-semibold">{ticket.event_title}</h1>
-            <div className="space-y-2 text-sm text-slate-300">
+            <div className="space-y-2 text-sm text-slate-600">
               <p>Ticket code: {ticket.qr_data}</p>
               <p>Event date: {new Date(ticket.event_date).toLocaleString()}</p>
               <p>Venue: {ticket.venue_name}</p>
@@ -46,10 +46,10 @@ function TicketDetail() {
               <p>Price: {ticket.price.toLocaleString()} VND</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <button onClick={handleDownload} className="rounded-full bg-cyan-400 px-5 py-3 font-semibold text-slate-950">
+              <button onClick={handleDownload} className="rounded-full bg-sky-500 px-5 py-3 font-semibold text-white">
                 Download QR
               </button>
-              <Link to="/tickets" className="rounded-full border border-white/15 px-5 py-3 font-semibold text-white">
+              <Link to="/tickets" className="rounded-full border border-slate-200 px-5 py-3 font-semibold text-slate-900">
                 Back to tickets
               </Link>
             </div>

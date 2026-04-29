@@ -108,23 +108,23 @@ function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-8">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 text-slate-900">
       <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl">
           <div className="mb-8 text-center">
-            <h1 className="mb-2 text-3xl font-bold text-white">TicketRush</h1>
-            <p className="text-sm text-slate-400">Create a new account</p>
+            <h1 className="mb-2 text-3xl font-bold text-slate-900">TicketRush</h1>
+            <p className="text-sm text-slate-600">Create a new account</p>
           </div>
 
           {error && (
-            <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
-              <p className="text-sm text-red-400">{error}</p>
+            <div className="mb-6 rounded-lg border border-rose-200 bg-rose-50 p-4">
+              <p className="text-sm text-rose-700">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="full_name" className="mb-1 block text-sm font-medium text-slate-300">
+              <label htmlFor="full_name" className="mb-1 block text-sm font-medium text-slate-600">
                 Full Name
               </label>
               <input
@@ -135,13 +135,13 @@ function Register() {
                 onChange={handleChange}
                 placeholder="Nguyen Van A"
                 minLength={2}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder-slate-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-300">
+              <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-600">
                 Email
               </label>
               <input
@@ -151,13 +151,13 @@ function Register() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="a@mail.com"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder-slate-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="mb-1 block text-sm font-medium text-slate-300">
+              <label htmlFor="phone" className="mb-1 block text-sm font-medium text-slate-600">
                 Phone Number (optional)
               </label>
               <input
@@ -167,13 +167,13 @@ function Register() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="0901234567"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder-slate-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="dob" className="mb-1 block text-sm font-medium text-slate-300">
+                <label htmlFor="dob" className="mb-1 block text-sm font-medium text-slate-600">
                   Date of Birth
                 </label>
                 <input
@@ -182,11 +182,11 @@ function Register() {
                   type="date"
                   value={formData.dob}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
                 />
               </div>
               <div>
-                <label htmlFor="gender" className="mb-1 block text-sm font-medium text-slate-300">
+                <label htmlFor="gender" className="mb-1 block text-sm font-medium text-slate-600">
                   Gender
                 </label>
                 <select
@@ -194,7 +194,7 @@ function Register() {
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -204,7 +204,7 @@ function Register() {
             </div>
 
             <div>
-              <label htmlFor="username" className="mb-1 block text-sm font-medium text-slate-300">
+              <label htmlFor="username" className="mb-1 block text-sm font-medium text-slate-600">
                 Username
               </label>
               <input
@@ -216,13 +216,13 @@ function Register() {
                 placeholder="nguyenvana"
                 minLength={4}
                 maxLength={20}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder-slate-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-300">
+              <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-600">
                 Password (min 8 characters)
               </label>
               <input
@@ -233,13 +233,13 @@ function Register() {
                 onChange={handleChange}
                 placeholder="Enter your password"
                 minLength={8}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder-slate-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="mb-1 block text-sm font-medium text-slate-300">
+              <label htmlFor="confirmPassword" className="mb-1 block text-sm font-medium text-slate-600">
                 Confirm Password
               </label>
               <input
@@ -249,7 +249,7 @@ function Register() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Re-enter your password"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/50"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder-slate-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/50"
                 required
               />
             </div>
@@ -257,16 +257,16 @@ function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-6 w-full rounded-lg bg-linear-to-r from-cyan-400 to-blue-400 py-2.5 font-semibold text-slate-950 transition hover:shadow-lg hover:shadow-cyan-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-6 w-full rounded-lg bg-linear-to-r from-sky-500 to-cyan-400 py-2.5 font-semibold text-white transition hover:shadow-lg hover:shadow-sky-500/30 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? 'Signing up...' : 'SIGN UP'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-600">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-cyan-400 transition hover:text-cyan-300">
+              <Link to="/login" className="font-semibold text-sky-600 transition hover:text-sky-500">
                 Sign in here
               </Link>
             </p>

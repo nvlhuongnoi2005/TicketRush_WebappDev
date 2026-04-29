@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { QueueProvider } from './context/QueueContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import { seedEventsIfNeeded } from './lib/eventStorage.js'
 
 seedEventsIfNeeded()
@@ -12,11 +13,13 @@ seedEventsIfNeeded()
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
-      <AuthProvider>
-        <QueueProvider>
-          <App />
-        </QueueProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <QueueProvider>
+            <App />
+          </QueueProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   </StrictMode>,
 )
