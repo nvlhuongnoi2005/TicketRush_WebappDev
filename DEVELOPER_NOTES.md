@@ -7,16 +7,16 @@ A reference for backend and frontend developers covering architecture, key funct
 ## Architecture Overview
 
 ```
-Frontend (React + Vite)          Backend (FastAPI + SQLite/PostgreSQL)
-─────────────────────────        ────────────────────────────────────
-src/pages/                       backend/routers/          ← HTTP routes
-src/components/                  backend/services/         ← business logic
-src/context/                     backend/models/           ← SQLAlchemy ORM
-src/lib/api.js          ──/api── backend/schemas/          ← Pydantic I/O
-src/lib/api.js          ──/ws──  backend/routers/ws.py     ← WebSocket
+Frontend (React + Vite)               Backend (FastAPI + SQLite/PostgreSQL)
+──────────────────────────────────    ────────────────────────────────────
+frontend/src/pages/                   backend/routers/          ← HTTP routes
+frontend/src/components/              backend/services/         ← business logic
+frontend/src/context/                 backend/models/           ← SQLAlchemy ORM
+frontend/src/lib/api.js     ──/api──  backend/schemas/          ← Pydantic I/O
+frontend/src/lib/api.js     ──/ws──   backend/routers/ws.py     ← WebSocket
 ```
 
-Vite proxies `/api` and `/ws` to `localhost:8000` during development (see `vite.config.js`).
+Vite proxies `/api` and `/ws` to `localhost:8000` during development (see `frontend/vite.config.js`).
 
 **Key flow:** Event → (optional) Virtual Queue → Seat Map → Checkout → Tickets
 
@@ -35,6 +35,7 @@ python -m uvicorn main:app --reload --port 8000
 
 **Frontend**
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
@@ -121,6 +122,25 @@ Broadcasts seat status to all connected clients for a given event every 1 second
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | 1440 | JWT lifetime (24 h) |
 
 Override via `backend/.env`.
+
+---
+
+## Project Structure
+
+```
+TicketRush/
+├── backend/          ← FastAPI app
+├── frontend/         ← React + Vite app
+│   ├── src/
+│   ├── public/
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
+├── DEVELOPER_NOTES.md
+├── README.md
+├── SPECIFICATIONS.md
+└── .gitignore
+```
 
 ---
 

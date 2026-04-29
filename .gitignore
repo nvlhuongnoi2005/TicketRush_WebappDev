@@ -1,6 +1,9 @@
-node_modules/
-dist/
-.vite/
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Backend
 backend/venv/
 backend/__pycache__/
 backend/**/__pycache__/
@@ -8,9 +11,11 @@ backend/*.db
 backend/*.db-wal
 backend/*.db-shm
 backend/static/qr/
+backend/.env
+
+# Shared
 .env
 .env.local
 *.pyc
 .DS_Store
-node_modules
 .claude/
