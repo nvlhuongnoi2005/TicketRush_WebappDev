@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useLocation, useSearchParams, useNavigate } from 'react-router-dom'
-import { FaSearch, FaTag } from 'react-icons/fa'
+import { FaSearch, FaTag, FaSun, FaMoon } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 
