@@ -25,6 +25,7 @@ const emptySection = {
 }
 
 function AdminCreateEvent() {
+  const { isDark } = useTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState(emptyForm)
   const [sectionDraft, setSectionDraft] = useState(emptySection)
@@ -114,26 +115,26 @@ function AdminCreateEvent() {
   }
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className={`${isDark ? 'bg-slate-950 text-slate-50' : 'bg-slate-50 text-slate-900'}`}>
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Admin create event</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Admin create event</p>
             <h1 className="text-3xl font-semibold">Create a new event</h1>
           </div>
-          <Link to="/admin/events" className="rounded-full border border-white/15 px-4 py-2 text-sm font-medium">
+          <Link to="/admin/events" className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isDark ? 'border-slate-700 text-slate-50 hover:bg-slate-800' : 'border-slate-200 text-slate-900 hover:bg-slate-100'}`}>
             Back to events
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-200">
+          <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <div className={`rounded-3xl border p-5 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
             <h2 className="mb-4 text-xl font-semibold">Event information</h2>
             <div className="grid gap-3">
               {[
@@ -144,7 +145,7 @@ function AdminCreateEvent() {
                 ['banner_url', 'Banner URL'],
               ].map(([name, label]) => (
                 <div key={name}>
-                  <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">{label}</label>
+                  <label className={`mb-1 block text-xs uppercase tracking-[0.2em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{label}</label>
                   <input
                     name={name}
                     value={form[name]}
@@ -166,7 +167,7 @@ function AdminCreateEvent() {
                     type="datetime-local"
                     value={form[name]}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none ${isDark ? 'border-slate-700 bg-slate-700 text-slate-50' : 'border-slate-200 bg-white text-slate-900'}`}
                   />
                 </div>
               ))}
@@ -177,13 +178,13 @@ function AdminCreateEvent() {
               </label>
 
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">Description</label>
+                <label className={`mb-1 block text-xs uppercase tracking-[0.2em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Description</label>
                 <textarea
                   name="description"
                   value={form.description}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
+                  className={`w-full rounded-xl border px-4 py-3 text-sm outline-none ${isDark ? 'border-slate-700 bg-slate-700 text-slate-50' : 'border-slate-200 bg-white text-slate-900'}`}
                 />
               </div>
             </div>
@@ -285,7 +286,38 @@ function AdminCreateEvent() {
                 <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-4 text-sm text-slate-400">
                   No seat sections added yet.
                 </div>
-              )}
+                <span className={`text-xs uppercase tracking-[0.2em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{form.sections.length} section(s)</span>
+              </div>
+
+              {/* Mode tabs */}
+              <div className="flex gap-2 border-b" style={{ borderColor: isDark ? '#334155' : '#e2e8f0' }}>
+                <button
+                  type="button"
+                  onClick={() => setSeatConfigMode('matrix')}
+                  className={`px-4 py-2 text-sm font-semibold transition ${
+                    seatConfigMode === 'matrix'
+                      ? 'border-b-2 border-sky-500 text-sky-500'
+                      : isDark
+                        ? 'text-slate-400 hover:text-slate-300'
+                        : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Matrix Mode
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSeatConfigMode('canvas')}
+                  className={`px-4 py-2 text-sm font-semibold transition ${
+                    seatConfigMode === 'canvas'
+                      ? 'border-b-2 border-sky-500 text-sky-500'
+                      : isDark
+                        ? 'text-slate-400 hover:text-slate-300'
+                        : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Canvas Designer
+                </button>
+              </div>
             </div>
 
             <button

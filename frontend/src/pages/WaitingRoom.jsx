@@ -1,102 +1,91 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { eventsApi, queueApi } from '../lib/api'
+import { getEventById } from '../data/mockData'
 import { useQueue } from '../context/QueueContext'
 
 function WaitingRoom() {
   const { eventId } = useParams()
   const navigate = useNavigate()
-  const { sessionId, hasAccessToken, storeAccessToken } = useQueue()
-  const [event, setEvent] = useState(null)
-  const [status, setStatus] = useState(null)
-  const [error, setError] = useState('')
-  const intervalRef = useRef(null)
+  const event = getEventById(eventId)
+  const { userPosition, isAdmitted, getAccess, activeUsers, CAPACITY_CONFIG } = useQueue()
+  const [displayPosition, setDisplayPosition] = useState(userPosition)
 
+  const accessToken = useMemo(() => `MOCK-${eventId}-${String(eventId).padStart(4, '0')}`, [eventId])
+
+  // Auto-redirect when admitted
   useEffect(() => {
-    eventsApi.get(eventId).then(setEvent).catch(console.error)
-  }, [eventId])
+    if (isAdmitted) {
+      // Get access to skip queue on next visit
+      getAccess()
 
-  useEffect(() => {
-    // Already admitted with a valid token — go straight to seat map
-    if (hasAccessToken(eventId)) {
-      navigate(`/seat-map/${eventId}`, { replace: true })
-      return
-    }
-
-    if (!sessionId) return
-
-    const handleStatus = (s) => {
-      setStatus(s)
-      if (s.is_admitted && s.access_token) {
-        clearInterval(intervalRef.current)
-        storeAccessToken(eventId, s.access_token, s.token_expires_at ?? null)
+      // Wait a bit for UI to show admission message
+      const timer = setTimeout(() => {
         navigate(`/seat-map/${eventId}`, { replace: true })
-      }
+      }, 2000)
+
+      return () => clearTimeout(timer)
     }
+  }, [isAdmitted, eventId, navigate, getAccess])
 
-    queueApi.join(eventId, sessionId)
-      .then(handleStatus)
-      .catch((err) => setError(err.message))
+  // Update display position
+  useEffect(() => {
+    if (userPosition) {
+      setDisplayPosition(userPosition)
+    }
+  }, [userPosition])
 
-    intervalRef.current = setInterval(() => {
-      queueApi.status(eventId, sessionId)
-        .then(handleStatus)
-        .catch((err) => setError(err.message))
-    }, 2000)
-
-    return () => clearInterval(intervalRef.current)
-  }, [eventId, sessionId])
-
-  const isAdmitted = status?.is_admitted ?? false
+  const capacityPercent = Math.min(Math.round((activeUsers / CAPACITY_CONFIG.NORMAL_CAPACITY) * 100), 100)
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className="bg-slate-50 text-slate-900">
       <section className="mx-auto max-w-3xl px-4 py-16 md:px-8">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Waiting room</p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-lg">
+          <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Waiting room</p>
           <h1 className="mt-3 text-3xl font-semibold">{event?.title || 'Event queue'}</h1>
 
-          {error && (
-            <div className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-200">
-              {error}
-            </div>
-          )}
-
           {isAdmitted ? (
-            <div className="mt-8 space-y-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
-              <p className="text-lg font-semibold text-emerald-300">You have been admitted!</p>
-              <p className="text-sm text-slate-300">Redirecting to seat selection...</p>
+            <div className="mt-8 space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
+              <p className="text-lg font-semibold text-emerald-700">✓ You have been admitted!</p>
+              <p className="text-sm text-slate-600">Redirecting to seat selection...</p>
             </div>
           ) : (
             <>
-              <div className="mt-8 flex items-center justify-center gap-3">
-                <div className="h-2 w-2 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
-                <div className="h-2 w-2 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.15s]" />
-                <div className="h-2 w-2 animate-bounce rounded-full bg-cyan-400" />
-              </div>
-
-              <p className="mt-6 text-lg text-slate-300">
+              <p className="mt-6 text-lg text-slate-600">
                 You are currently in position{' '}
-                <span className="font-semibold text-cyan-300">{status?.position ?? '...'}</span>
-                {status?.total_in_queue ? (
-                  <span className="text-slate-400"> of {status.total_in_queue}</span>
-                ) : null}
+                <span className="font-semibold text-sky-700">{displayPosition || '...'}</span> in the queue.
               </p>
 
-              <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-300">
-                <p className="font-medium text-white">Please wait...</p>
+              <div className="mt-8 space-y-3">
+                <div className="text-sm text-slate-500">System capacity: {capacityPercent}%</div>
+
+                <div className="h-4 overflow-hidden rounded-full bg-slate-200">
+                  <div
+                    className="h-full rounded-full bg-linear-to-r from-cyan-400 to-emerald-400 transition-all duration-500"
+                    style={{ width: `${capacityPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                <p className="font-medium text-slate-900">⏳ Please wait...</p>
                 <p className="mt-2">
-                  {status?.message || 'Your position will be updated every few seconds. You will be automatically redirected when admitted.'}
+                  Your position will be updated automatically. When you reach the front of the queue, you will be admitted.
                 </p>
               </div>
             </>
           )}
 
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
+            <p>
+              Access token: <span className="font-mono text-sky-700">{accessToken}</span>
+            </p>
+          </div>
+
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {!isAdmitted && (
               <Link
                 to={`/events/${eventId}`}
-                className="rounded-full border border-white/15 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+                className="rounded-full border border-slate-200 px-5 py-3 font-semibold text-slate-900 transition hover:bg-slate-100"
               >
                 Back to event
               </Link>
@@ -109,3 +98,4 @@ function WaitingRoom() {
 }
 
 export default WaitingRoom
+

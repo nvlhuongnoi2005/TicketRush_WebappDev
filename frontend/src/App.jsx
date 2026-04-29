@@ -13,11 +13,14 @@ import AdminDashboard from './pages/AdminDashboard.jsx'
 import AdminEvents from './pages/AdminEvents.jsx'
 import AdminCreateEvent from './pages/AdminCreateEvent.jsx'
 import Login from './pages/Login.jsx'
+import ForgotPassword from './pages/ForgotPassword.jsx'
+import ResetPassword from './pages/ResetPassword.jsx'
 import Register from './pages/Register.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
+  const { isDark } = useTheme()
   const location = useLocation()
   const isAuthPage = ['/login', '/register', '/forgot-password'].includes(location.pathname)
 
@@ -39,6 +42,8 @@ function App() {
             <Route path="/admin/events" element={<AdminEvents />} />
             <Route path="/admin/events/create" element={<AdminCreateEvent />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { eventsApi } from '../lib/api'
 
 function EventDetail() {
+  const { isDark } = useTheme()
   const { eventId } = useParams()
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -24,11 +25,11 @@ function EventDetail() {
 
   if (!event) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-white md:px-8">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+      <div className={`mx-auto max-w-7xl px-4 py-16 md:px-8 ${isDark ? 'bg-slate-950 text-slate-50' : 'bg-slate-50 text-slate-900'}`}>
+        <div className={`rounded-3xl border p-8 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
           <h1 className="text-3xl font-semibold">Event not found</h1>
-          <p className="mt-3 text-slate-400">The event you are looking for does not exist.</p>
-          <Link to="/" className="mt-6 inline-flex rounded-full bg-cyan-400 px-4 py-2 font-semibold text-slate-950">
+          <p className={`mt-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>The event you are looking for does not exist.</p>
+          <Link to="/" className="mt-6 inline-flex rounded-full bg-sky-500 px-4 py-2 font-semibold text-white">
             Back to home
           </Link>
         </div>
@@ -37,7 +38,7 @@ function EventDetail() {
   }
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className={`${isDark ? 'bg-slate-950 text-slate-50' : 'bg-slate-50 text-slate-900'}`}>
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           {event.banner_url && (
@@ -46,15 +47,15 @@ function EventDetail() {
             </div>
           )}
 
-          <div className="space-y-5 rounded-3xl border border-white/10 bg-white/5 p-6">
-            <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+          <div className={`space-y-5 rounded-3xl border p-6 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
+            <span className={`inline-flex rounded-full border px-3 py-1 text-xs uppercase tracking-[0.2em] ${isDark ? 'border-sky-900 bg-sky-950 text-sky-300' : 'border-sky-200 bg-sky-50 text-sky-700'}`}>
               Event details
             </span>
             <div>
               <h1 className="text-3xl font-semibold md:text-5xl">{event.title}</h1>
               {event.artist && <p className="mt-2 text-slate-400">{event.artist}</p>}
             </div>
-            <div className="space-y-2 text-sm text-slate-300">
+            <div className={`space-y-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
               <p>{new Date(event.event_date).toLocaleString()}</p>
               {event.venue_name && <p>{event.venue_name}</p>}
               {event.venue_address && <p>{event.venue_address}</p>}
@@ -88,7 +89,7 @@ function EventDetail() {
                   Select seats
                 </Link>
               )}
-              <Link to="/" className="rounded-full border border-white/15 px-5 py-3 font-semibold text-white">
+              <Link to="/" className={`rounded-full border px-5 py-3 font-semibold ${isDark ? 'border-slate-700 text-slate-50 hover:bg-slate-700' : 'border-slate-200 text-slate-900 hover:bg-slate-100'} transition`}>
                 Back to events
               </Link>
             </div>

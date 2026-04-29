@@ -8,11 +8,13 @@ import { QueueProvider } from './context/QueueContext.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
-      <AuthProvider>
-        <QueueProvider>
-          <App />
-        </QueueProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <QueueProvider>
+            <App />
+          </QueueProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   </StrictMode>,
 )

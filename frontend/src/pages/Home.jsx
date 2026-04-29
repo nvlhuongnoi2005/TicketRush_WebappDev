@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import Banner from '../components/Banner.jsx'
 import { eventsApi } from '../lib/api'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 const statusLabel = {
   on_sale: 'On Sale',
@@ -19,6 +20,7 @@ const statusStyle = {
 }
 
 function Home() {
+  const { isDark } = useTheme()
   const [status, setStatus] = useState('all')
   const [searchParams] = useSearchParams()
   const { user } = useAuth()
@@ -47,29 +49,29 @@ function Home() {
   }, [events, search, status])
 
   return (
-    <div className="bg-slate-950 text-white">
+    <div className={`${isDark ? 'bg-slate-950 text-slate-50' : 'bg-slate-50 text-slate-900'}`}>
       <Banner />
 
       <section className="mx-auto max-w-7xl px-4 py-6 md:px-8">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-xl md:p-6">
+        <div className={`rounded-3xl border p-5 shadow-lg md:p-6 ${isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white'}`}>
           <div>
-            <p className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-1 text-sm text-cyan-200">
+            <p className={`mb-3 inline-flex rounded-full border px-4 py-1 text-sm ${isDark ? 'border-sky-900 bg-sky-950 text-sky-400' : 'border-sky-200 bg-sky-50 text-sky-700'}`}>
               Discover events, choose seats, and secure QR tickets.
             </p>
-            <h1 className="max-w-2xl text-3xl font-semibold tracking-tight md:text-5xl">
+            <h1 className={`max-w-2xl text-3xl font-semibold tracking-tight md:text-5xl ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
               TicketRush brings concerts, festivals, and conferences into one ticketing flow.
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
+            <p className={`mt-4 max-w-2xl text-sm leading-7 md:text-base ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
               Search and category chips now live in the header. Use this page to browse event cards, sort by status,
               and jump straight into seat selection or checkout.
             </p>
             {user?.role === 'admin' && (
-              <div className="mt-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-emerald-200">Admin session detected</p>
+              <div className={`mt-6 rounded-2xl border p-4 ${isDark ? 'border-emerald-900 bg-emerald-950' : 'border-emerald-200 bg-emerald-50'}`}>
+                <p className={`text-xs uppercase tracking-[0.2em] ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Admin session detected</p>
                 <div className="mt-3 flex flex-wrap gap-3">
                   <Link
                     to="/admin"
-                    className="inline-flex items-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+                    className="inline-flex items-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
                   >
                     Switch to admin
                   </Link>
@@ -85,11 +87,11 @@ function Home() {
           </div>
 
           <div className="mt-6 max-w-sm">
-            <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-slate-400">Status</label>
+            <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-slate-500">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400/40"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-400/40"
             >
               <option value="all">All</option>
               <option value="on_sale">On Sale</option>
@@ -105,9 +107,9 @@ function Home() {
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-semibold">Featured events</h2>
-            <p className="text-sm text-slate-400">Browse event cards with live pricing and seat availability.</p>
+            <p className="text-sm text-slate-600">Browse event cards with live pricing and seat availability.</p>
           </div>
-          <p className="text-sm text-slate-400">{filteredEvents.length} result(s)</p>
+          <p className="text-sm text-slate-600">{filteredEvents.length} result(s)</p>
         </div>
 
         {loading ? (
