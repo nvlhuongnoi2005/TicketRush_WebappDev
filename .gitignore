@@ -19,3 +19,4 @@ backend/.env
 *.pyc
 .DS_Store
 .claude/
+.vite
