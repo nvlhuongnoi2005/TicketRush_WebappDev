@@ -110,22 +110,22 @@ function Home() {
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {filteredEvents.map((event) => (
-            <article key={event.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg transition hover:-translate-y-1 hover:border-sky-300">
+            <article key={event.id} className={`overflow-hidden rounded-3xl border shadow-lg transition hover:-translate-y-1 ${isDark ? 'border-slate-700 bg-slate-800 hover:border-sky-400' : 'border-slate-200 bg-white hover:border-sky-300'}`}>
               <div className="h-52 overflow-hidden">
                 <img src={event.banner_url} alt={event.title} className="h-full w-full object-cover" />
               </div>
               <div className="space-y-4 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-xl font-semibold">{event.title}</h3>
-                    <p className="text-sm text-slate-600">{event.artist}</p>
+                    <h3 className={`text-xl font-semibold ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>{event.title}</h3>
+                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{event.artist}</p>
                   </div>
                   <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusStyle[event.status]}`}>
                     {statusLabel[event.status]}
                   </span>
                 </div>
 
-                <div className="space-y-2 text-sm text-slate-600">
+                <div className={`space-y-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                   <p>{new Date(event.event_date).toLocaleString()}</p>
                   <p>{event.venue_name}</p>
                   <p>From {event.min_price.toLocaleString()} VND</p>

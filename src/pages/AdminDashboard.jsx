@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTheme } from '../context/ThemeContext'
 import { getEvents, getEventById } from '../lib/eventStorage'
 import { adminStats } from '../data/mockData'
 
 function AdminDashboard() {
+  const { isDark } = useTheme()
   const events = getEvents()
   const [selectedEventId, setSelectedEventId] = useState(events[0]?.id || 1)
   const selectedEvent = getEventById(selectedEventId)
@@ -36,7 +38,7 @@ function AdminDashboard() {
   ]
 
   return (
-    <div className="bg-slate-50 text-slate-900">
+    <div className={`${isDark ? 'bg-slate-950 text-slate-50' : 'bg-slate-50 text-slate-900'}`}>
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -47,16 +49,16 @@ function AdminDashboard() {
             <Link to="/admin/events/create" className="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-400">
               Create event
             </Link>
-            <Link to="/admin/events" className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-100">
+            <Link to="/admin/events" className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isDark ? 'border-slate-700 text-slate-50 hover:bg-slate-800' : 'border-slate-200 text-slate-900 hover:bg-slate-100'}`}>
               Manage events
             </Link>
             <select
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(Number(e.target.value))}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 outline-none"
+              className={`rounded-full border px-4 py-2 text-sm outline-none ${isDark ? 'border-slate-700 bg-slate-800 text-slate-50' : 'border-slate-200 bg-white text-slate-900'}`}
             >
               {events.map((event) => (
-                <option key={event.id} value={event.id} className="bg-white text-slate-900">
+                <option key={event.id} value={event.id} className={isDark ? 'bg-slate-800 text-slate-50' : 'bg-white text-slate-900'}>
                   {event.title}
                 </option>
               ))}
@@ -66,35 +68,35 @@ function AdminDashboard() {
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {kpis.map((kpi) => (
-            <div key={kpi.label} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
-              <p className="text-sm text-slate-500">{kpi.label}</p>
-              <p className="mt-2 text-3xl font-semibold text-sky-700">{kpi.value}</p>
+            <div key={kpi.label} className={`rounded-3xl border p-5 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label}</p>
+              <p className="mt-2 text-3xl font-semibold text-sky-500">{kpi.value}</p>
             </div>
           ))}
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
+          <div className={`rounded-3xl border p-5 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
             <h2 className="text-xl font-semibold">Revenue - last 7 days</h2>
             <div className="mt-4 space-y-3">
               {adminStats.recent_revenue.map((item) => (
                 <div key={item.date} className="flex items-center gap-3">
-                  <span className="w-28 text-sm text-slate-500">{item.date}</span>
-                  <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-200">
+                  <span className={`w-28 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{item.date}</span>
+                  <div className={`h-3 flex-1 overflow-hidden rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
                     <div
                       className="h-full rounded-full bg-linear-to-r from-sky-500 to-emerald-400"
                       style={{ width: `${Math.min((item.revenue / 100000000) * 100, 100)}%` }}
                     />
                   </div>
-                  <span className="w-28 text-right text-sm text-slate-700">{item.revenue.toLocaleString()}</span>
+                  <span className={`w-28 text-right text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{item.revenue.toLocaleString()}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
+          <div className={`rounded-3xl border p-5 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
             <h2 className="text-xl font-semibold">Audience statistics</h2>
-            <div className="mt-4 grid gap-3 text-sm text-slate-600">
+            <div className={`mt-4 grid gap-3 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
               <p>Male: {adminStats.audience.gender_male}</p>
               <p>Female: {adminStats.audience.gender_female}</p>
               <p>Other: {adminStats.audience.gender_other}</p>
@@ -107,16 +109,16 @@ function AdminDashboard() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
+        <div className={`mt-6 rounded-3xl border p-5 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
           <h2 className="text-xl font-semibold">Seat status by section</h2>
           <div className="mt-4 space-y-4">
             {seatStats.map((section) => (
               <div key={section.section_name}>
-                <div className="mb-2 flex items-center justify-between text-sm">
+                <div className={`mb-2 flex items-center justify-between text-sm ${isDark ? 'text-slate-300' : 'text-slate-900'}`}>
                   <span>{section.section_name}</span>
                   <span>{section.fill_pct}% fill</span>
                 </div>
-                <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+                <div className={`h-3 overflow-hidden rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
                   <div
                     className="h-full rounded-full bg-linear-to-r from-emerald-400 to-sky-400"
                     style={{ width: `${section.fill_pct}%` }}
