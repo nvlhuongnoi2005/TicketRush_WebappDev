@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.vite/
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.db
+backend/*.db-wal
+backend/*.db-shm
+backend/static/qr/
+.env
+.env.local
+*.pyc
+.DS_Store
+node_modules

@@ -1,0 +1,113 @@
+====================================================================
+  TICKETRUSH - HƯỚNG DẪN CHẠY ỨNG DỤNG
+====================================================================
+
+CẤU TRÚC THỨ MỤC:
+  TicketRush/
+    backend/        → FastAPI backend (Python)
+    src/            → React frontend (Vite)
+    package.json    → Frontend dependencies
+    vite.config.js  → Vite config (proxy /api → localhost:8000)
+
+====================================================================
+BƯỚC 1: CHẠY BACKEND
+====================================================================
+
+1. Mở terminal, vào thư mục backend:
+   cd TicketRush/backend
+
+2. Tạo và kích hoạt virtual environment:
+   python -m venv venv
+   # Windows:
+   venv\Scripts\activate
+   # macOS/Linux:
+   source venv/bin/activate
+
+3. Cài đặt dependencies:
+   pip install -r requirements.txt
+
+4. Tạo file .env (copy từ .env.example nếu có, hoặc tạo mới):
+   Tạo file backend/.env với nội dung:
+
+   SECRET_KEY=your-secret-key-here-change-in-production
+   DATABASE_URL=sqlite:///./ticketrush.db
+   BANK_ID=MB
+   BANK_ACCOUNT=0123456789
+   BANK_ACCOUNT_NAME=TICKETRUSH ENTERTAINMENT
+
+5. Chạy backend:
+   python main.py
+   # Hoặc:
+   uvicorn main:app --reload --port 8000
+
+   → Backend chạy tại: http://localhost:8000
+   → API docs (Swagger): http://localhost:8000/docs
+
+====================================================================
+BƯỚC 2: CHẠY FRONTEND
+====================================================================
+
+1. Mở terminal MỚI (giữ terminal backend), vào thư mục gốc:
+   cd TicketRush
+
+2. Cài đặt Node.js dependencies (chỉ cần chạy 1 lần):
+   npm install
+
+3. Chạy frontend dev server:
+   npm run dev
+
+   → Frontend chạy tại: http://localhost:5173
+   → Mọi request /api/* tự động proxy sang backend port 8000
+
+====================================================================
+BƯỚC 3: KHỞI TẠO DỮ LIỆU (lần đầu chạy)
+====================================================================
+
+1. Truy cập: http://localhost:8000/docs
+
+2. Đăng ký tài khoản admin:
+   POST /api/auth/register
+   {
+     "username": "admin",
+     "email": "admin@example.com",
+     "password": "Admin1234!",
+     "full_name": "Administrator",
+     "dob": "01/01/1990",
+     "gender": "male",
+     "phone": "0900000000"
+   }
+
+3. Sau khi đăng ký, cấp quyền admin từ SQLite (dùng DB Browser hoặc terminal):
+   sqlite3 backend/ticketrush.db
+   UPDATE users SET role = 'admin' WHERE username = 'admin';
+   .quit
+
+4. Đăng nhập vào frontend và tạo event từ /admin/events/create
+
+====================================================================
+TÀI KHOẢN MẶC ĐỊNH (nếu backend có seed data)
+====================================================================
+   Admin:  username=admin, password=Admin1234!
+   User:   username=user1, password=User1234!
+
+====================================================================
+LƯU Ý KHI PHÁT TRIỂN
+====================================================================
+
+- Backend port 8000 phải chạy TRƯỚC khi mở frontend
+- Vite proxy tự xử lý CORS – không cần cấu hình thêm
+- WebSocket real-time seat updates tại: ws://localhost:5173/ws/events/{id}/seats
+- VietQR hiển thị QR chuyển khoản ngân hàng (cần kết nối internet)
+- Forgot password: token hiển thị trực tiếp trên màn hình (không gửi email)
+- Virtual queue chỉ kích hoạt khi event có queue_enabled = true
+
+====================================================================
+BUILD CHO PRODUCTION
+====================================================================
+
+   cd TicketRush
+   npm run build        → tạo thư mục dist/
+   # Serve dist/ qua Nginx hoặc bất kỳ static server nào
+   # Backend deploy với gunicorn/uvicorn behind Nginx
+
+====================================================================
