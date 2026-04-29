@@ -16,13 +16,15 @@ import Login from './pages/Login.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import Register from './pages/Register.jsx'
-import ForgotPassword from './pages/ForgotPassword.jsx'
 import NotFound from './pages/NotFound.jsx'
 
+const AUTH_PATHS = ['/login', '/register', '/forgot-password']
+
 function App() {
-  const { isDark } = useTheme()
   const location = useLocation()
-  const isAuthPage = ['/login', '/register', '/forgot-password'].includes(location.pathname)
+  const isAuthPage =
+    AUTH_PATHS.includes(location.pathname) ||
+    location.pathname.startsWith('/reset-password/')
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-950">
@@ -42,10 +44,9 @@ function App() {
             <Route path="/admin/events" element={<AdminEvents />} />
             <Route path="/admin/events/create" element={<AdminCreateEvent />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </QueueInterceptor>

@@ -9,6 +9,7 @@ from core.deps import get_current_user
 from core.security import hash_password, verify_password, create_access_token
 from models.user import User, UserRole
 from schemas.user import UserRegister, UserLogin, UserUpdate, UserOut, TokenOut, ForgotPasswordRequest, ResetPasswordRequest
+from services.email_service import send_reset_password_email
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -73,26 +74,34 @@ def update_me(
 
 @router.post("/forgot-password")
 def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    """
-    Không có email service → trả reset_token thẳng về response.
-    Frontend hiển thị token để user copy và điền vào form reset.
-    """
-    user = db.query(User).filter(
-        User.username == body.username,
-        User.email == body.email,
-    ).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản với username và email này")
+    user = db.query(User).filter(User.email == body.email).first()
+
+    # Luôn trả 200 để tránh leak thông tin email tồn tại hay không
+    if not user or not user.is_active:
+        return {"message": "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được hướng dẫn trong vài phút."}
 
     token = secrets.token_urlsafe(32)
     user.reset_token = token
     user.reset_token_expires_at = datetime.utcnow() + timedelta(minutes=30)
     db.commit()
-    return {
-        "message": "Đã tạo mã đặt lại mật khẩu. Dùng mã này để đặt lại mật khẩu.",
-        "reset_token": token,
-        "expires_in_minutes": 30,
-    }
+
+    try:
+        send_reset_password_email(
+            to=user.email,
+            full_name=user.full_name or user.username,
+            reset_token=token,
+        )
+    except Exception as exc:
+        # Rollback token nếu gửi mail thất bại
+        user.reset_token = None
+        user.reset_token_expires_at = None
+        db.commit()
+        raise HTTPException(
+            status_code=503,
+            detail=f"Không thể gửi email: {exc}. Kiểm tra cấu hình SMTP trong backend/.env",
+        )
+
+    return {"message": "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được hướng dẫn trong vài phút."}
 
 
 @router.post("/reset-password")

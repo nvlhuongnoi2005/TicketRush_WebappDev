@@ -47,7 +47,6 @@ class TokenOut(BaseModel):
 
 
 class ForgotPasswordRequest(BaseModel):
-    username: str
     email: EmailStr
 
 
