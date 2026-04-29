@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { eventsApi } from '../lib/api'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 function EventDetail() {
   const { isDark } = useTheme()

@@ -25,7 +25,6 @@ const emptySection = {
 }
 
 function AdminCreateEvent() {
-  const { isDark } = useTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState(emptyForm)
   const [sectionDraft, setSectionDraft] = useState(emptySection)
@@ -73,14 +72,14 @@ function AdminCreateEvent() {
     e.preventDefault()
     setError('')
 
-    if (!form.title.trim()) return setError('Event title is required.')
-    if (!form.venue_name.trim()) return setError('Venue name is required.')
-    if (!form.event_date) return setError('Event date is required.')
-    if (!form.sections.length) return setError('Add at least one seat section.')
+    if (!form.title.trim()) return setError('Vui lòng nhập tên sự kiện.')
+    if (!form.venue_name.trim()) return setError('Vui lòng nhập tên địa điểm.')
+    if (!form.event_date) return setError('Vui lòng chọn ngày diễn ra.')
+    if (!form.sections.length) return setError('Thêm ít nhất một khu vực ghế.')
 
     setSaving(true)
     try {
-      const eventPayload = {
+      const newEvent = await adminApi.events.create({
         title: form.title.trim(),
         artist: form.artist.trim() || undefined,
         venue_name: form.venue_name.trim(),
@@ -91,8 +90,7 @@ function AdminCreateEvent() {
         banner_url: form.banner_url.trim() || undefined,
         queue_enabled: form.queue_enabled,
         description: form.description.trim() || undefined,
-      }
-      const newEvent = await adminApi.events.create(eventPayload)
+      })
 
       await Promise.all(
         form.sections.map((sec) =>
@@ -115,217 +113,180 @@ function AdminCreateEvent() {
   }
 
   return (
-    <div className={`${isDark ? 'bg-slate-950 text-slate-50' : 'bg-slate-50 text-slate-900'}`}>
+    <div className="bg-slate-950 text-white">
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Admin create event</p>
-            <h1 className="text-3xl font-semibold">Create a new event</h1>
+            <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Admin</p>
+            <h1 className="text-3xl font-semibold">Tạo sự kiện mới</h1>
           </div>
-          <Link to="/admin/events" className={`rounded-full border px-4 py-2 text-sm font-medium transition ${isDark ? 'border-slate-700 text-slate-50 hover:bg-slate-800' : 'border-slate-200 text-slate-900 hover:bg-slate-100'}`}>
-            Back to events
+          <Link
+            to="/admin/events"
+            className="rounded-full border border-white/15 px-4 py-2 text-sm font-medium transition hover:bg-white/10"
+          >
+            Quay lại
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+          <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-300">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className={`rounded-3xl border p-5 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
-            <h2 className="mb-4 text-xl font-semibold">Event information</h2>
-            <div className="grid gap-3">
-              {[
-                ['title', 'Title'],
-                ['artist', 'Artist'],
-                ['venue_name', 'Venue name'],
-                ['venue_address', 'Venue address'],
-                ['banner_url', 'Banner URL'],
-              ].map(([name, label]) => (
-                <div key={name}>
-                  <label className={`mb-1 block text-xs uppercase tracking-[0.2em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{label}</label>
-                  <input
-                    name={name}
-                    value={form[name]}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
-                  />
-                </div>
-              ))}
+          {/* Left: event info */}
+          <div className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-5">
+            <h2 className="text-xl font-semibold">Thông tin sự kiện</h2>
 
-              {[
-                ['event_date', 'Event date'],
-                ['sale_start', 'Sale start'],
-                ['sale_end', 'Sale end'],
-              ].map(([name, label]) => (
-                <div key={name}>
-                  <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">{label}</label>
-                  <input
-                    name={name}
-                    type="datetime-local"
-                    value={form[name]}
-                    onChange={handleChange}
-                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none ${isDark ? 'border-slate-700 bg-slate-700 text-slate-50' : 'border-slate-200 bg-white text-slate-900'}`}
-                  />
-                </div>
-              ))}
-
-              <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm">
-                <input type="checkbox" name="queue_enabled" checked={form.queue_enabled} onChange={handleChange} />
-                Enable virtual queue
-              </label>
-
-              <div>
-                <label className={`mb-1 block text-xs uppercase tracking-[0.2em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Description</label>
-                <textarea
-                  name="description"
-                  value={form.description}
+            {[
+              ['title', 'Tên sự kiện'],
+              ['artist', 'Nghệ sĩ / Ban nhạc'],
+              ['venue_name', 'Tên địa điểm'],
+              ['venue_address', 'Địa chỉ'],
+              ['banner_url', 'URL ảnh banner'],
+            ].map(([name, label]) => (
+              <div key={name}>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.15em] text-slate-400">
+                  {label}
+                </label>
+                <input
+                  name={name}
+                  value={form[name]}
                   onChange={handleChange}
-                  rows="4"
-                  className={`w-full rounded-xl border px-4 py-3 text-sm outline-none ${isDark ? 'border-slate-700 bg-slate-700 text-slate-50' : 'border-slate-200 bg-white text-slate-900'}`}
+                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
                 />
               </div>
+            ))}
+
+            {[
+              ['event_date', 'Ngày diễn ra'],
+              ['sale_start', 'Bắt đầu mở bán'],
+              ['sale_end', 'Kết thúc mở bán'],
+            ].map(([name, label]) => (
+              <div key={name}>
+                <label className="mb-1 block text-xs font-medium uppercase tracking-[0.15em] text-slate-400">
+                  {label}
+                </label>
+                <input
+                  name={name}
+                  type="datetime-local"
+                  value={form[name]}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                />
+              </div>
+            ))}
+
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm">
+              <input
+                type="checkbox"
+                name="queue_enabled"
+                checked={form.queue_enabled}
+                onChange={handleChange}
+                className="accent-cyan-400"
+              />
+              Bật hàng chờ ảo (Virtual Queue)
+            </label>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium uppercase tracking-[0.15em] text-slate-400">
+                Mô tả
+              </label>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+              />
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold">Seat configuration</h2>
-                <p className="text-sm text-slate-400">Add sections. Seats are auto-generated from rows × cols.</p>
-              </div>
-              <span className="text-xs uppercase tracking-[0.2em] text-slate-500">{form.sections.length} section(s)</span>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">Section name</label>
-                <input
-                  name="name"
-                  value={sectionDraft.name}
-                  onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
-                  placeholder="VIP"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">Rows</label>
-                <input
-                  name="rows"
-                  type="number"
-                  value={sectionDraft.rows}
-                  onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">Columns</label>
-                <input
-                  name="cols"
-                  type="number"
-                  value={sectionDraft.cols}
-                  onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">Price (VND)</label>
-                <input
-                  name="price"
-                  type="number"
-                  value={sectionDraft.price}
-                  onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.2em] text-slate-500">Color</label>
-                <input
-                  name="color"
-                  type="text"
-                  value={sectionDraft.color}
-                  onChange={handleSectionDraftChange}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
-                  placeholder="#22c55e"
-                />
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={addSectionToForm}
-              className="mt-4 rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950"
-            >
-              Add section
-            </button>
-
-            <div className="mt-4 grid gap-3">
-              {form.sections.length ? (
-                form.sections.map((section) => (
-                  <div key={section._tempId} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
-                    <div>
-                      <p className="font-semibold" style={{ color: section.color }}>
-                        {section.name}
-                      </p>
-                      <p className="text-slate-400">
-                        {section.rows} rows × {section.cols} cols · {section.price.toLocaleString()} VND · {section.total_seats} seats
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeSection(section._tempId)}
-                      className="rounded-full bg-rose-400 px-3 py-2 text-xs font-semibold text-white"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-4 text-sm text-slate-400">
-                  No seat sections added yet.
+          {/* Right: seat sections */}
+          <div className="flex flex-col gap-5">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-semibold">Cấu hình khu vực ghế</h2>
+                  <p className="text-sm text-slate-400">Ghế được tự động tạo theo rows × cols.</p>
                 </div>
-                <span className={`text-xs uppercase tracking-[0.2em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{form.sections.length} section(s)</span>
+                <span className="rounded-full border border-white/10 bg-slate-900 px-3 py-1 text-xs text-slate-400">
+                  {form.sections.length} khu vực
+                </span>
               </div>
 
-              {/* Mode tabs */}
-              <div className="flex gap-2 border-b" style={{ borderColor: isDark ? '#334155' : '#e2e8f0' }}>
-                <button
-                  type="button"
-                  onClick={() => setSeatConfigMode('matrix')}
-                  className={`px-4 py-2 text-sm font-semibold transition ${
-                    seatConfigMode === 'matrix'
-                      ? 'border-b-2 border-sky-500 text-sky-500'
-                      : isDark
-                        ? 'text-slate-400 hover:text-slate-300'
-                        : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Matrix Mode
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSeatConfigMode('canvas')}
-                  className={`px-4 py-2 text-sm font-semibold transition ${
-                    seatConfigMode === 'canvas'
-                      ? 'border-b-2 border-sky-500 text-sky-500'
-                      : isDark
-                        ? 'text-slate-400 hover:text-slate-300'
-                        : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Canvas Designer
-                </button>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {[
+                  ['name', 'text', 'Tên khu (VD: VIP)', 'name'],
+                  ['rows', 'number', 'Số hàng', 'rows'],
+                  ['cols', 'number', 'Số cột', 'cols'],
+                  ['price', 'number', 'Giá (VND)', 'price'],
+                  ['color', 'text', '#22c55e', 'color'],
+                ].map(([field, type, placeholder, name]) => (
+                  <div key={field}>
+                    <label className="mb-1 block text-xs font-medium uppercase tracking-[0.15em] text-slate-400">
+                      {placeholder.startsWith('#') ? 'Màu hex' : placeholder}
+                    </label>
+                    <input
+                      name={name}
+                      type={type}
+                      value={sectionDraft[name]}
+                      onChange={handleSectionDraftChange}
+                      placeholder={placeholder}
+                      className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={addSectionToForm}
+                className="mt-4 rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+              >
+                + Thêm khu vực
+              </button>
+
+              <div className="mt-4 space-y-3">
+                {form.sections.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/15 p-4 text-center text-sm text-slate-500">
+                    Chưa có khu vực ghế nào. Thêm ít nhất một khu vực.
+                  </div>
+                ) : (
+                  form.sections.map((sec) => (
+                    <div
+                      key={sec._tempId}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm"
+                    >
+                      <div>
+                        <p className="font-semibold" style={{ color: sec.color }}>
+                          {sec.name}
+                        </p>
+                        <p className="text-slate-400">
+                          {sec.rows} hàng × {sec.cols} cột &middot;{' '}
+                          {sec.price.toLocaleString()} VND &middot; {sec.total_seats} ghế
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeSection(sec._tempId)}
+                        className="rounded-full bg-rose-400/20 px-3 py-1.5 text-xs font-semibold text-rose-300 transition hover:bg-rose-400/30"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="mt-5 w-full rounded-full bg-cyan-400 px-5 py-3 font-semibold text-slate-950 disabled:opacity-50"
+              className="w-full rounded-full bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-50"
             >
-              {saving ? 'Creating...' : 'Create event'}
+              {saving ? 'Đang tạo...' : 'Tạo sự kiện'}
             </button>
           </div>
         </form>
