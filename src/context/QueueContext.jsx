@@ -8,7 +8,9 @@ const QueueContext = createContext(null)
  */
 const CAPACITY_CONFIG = {
   NORMAL_CAPACITY: 50, // Max concurrent users on platform
-  WARNING_THRESHOLD: 20, // Start queuing at 40% capacity (lowered for demo)
+  // Raised warning threshold to avoid forcing the demo into queue mode
+  // during development. Set to a high value so queuing doesn't trigger.
+  WARNING_THRESHOLD: 1000,
   QUEUE_SIZE_LIMIT: 500, // Max people in queue
 }
 

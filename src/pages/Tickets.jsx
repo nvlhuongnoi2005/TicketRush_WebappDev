@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { getTickets } from '../lib/ticketStorage'
 
@@ -8,9 +8,20 @@ const badgeStyle = {
   cancelled: 'bg-rose-400/15 text-rose-300 border-rose-400/30',
 }
 
+const normalizeStatus = (status) => {
+  const value = String(status || '').trim().toLowerCase()
+
+  if (value === 'used' || value === 'redeemed' || value === 'checked-in') return 'used'
+  if (value === 'valid' || value === 'active' || value === 'unused') return 'valid'
+  if (value === 'cancelled' || value === 'canceled') return 'cancelled'
+
+  return value || 'valid'
+}
+
 function Tickets() {
   const location = useLocation()
   const [tickets, setTickets] = useState(() => getTickets())
+  const [filter, setFilter] = useState('all') // all | valid | used
 
   useEffect(() => {
     setTickets(getTickets())
@@ -18,6 +29,13 @@ function Tickets() {
       alert(location.state.message)
     }
   }, [location.state])
+
+  const filtered = useMemo(() => {
+    return tickets.filter((t) => {
+      if (filter === 'all') return true
+      return normalizeStatus(t.status) === filter
+    })
+  }, [tickets, filter])
 
   return (
     <div className="bg-slate-50 text-slate-900">
@@ -27,8 +45,25 @@ function Tickets() {
           <h1 className="text-3xl font-semibold">Ticket library</h1>
         </div>
 
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-sm mr-2">Filter:</label>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="rounded-full border px-3 py-1.5 text-sm bg-white"
+            >
+              <option value="all">All</option>
+              <option value="valid">Valid</option>
+              <option value="used">Used</option>
+            </select>
+          </div>
+
+          <div />
+        </div>
+
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {tickets.map((ticket) => (
+          {filtered.map((ticket) => (
             <article key={ticket.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
@@ -37,8 +72,12 @@ function Tickets() {
                     {ticket.seat_label} • {ticket.section_name}
                   </p>
                 </div>
-                <span className={`rounded-full border px-3 py-1 text-xs font-medium ${badgeStyle[ticket.status]}`}>
-                  {ticket.status}
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                    badgeStyle[normalizeStatus(ticket.status)] || 'bg-slate-400/15 text-slate-500 border-slate-400/30'
+                  }`}
+                >
+                  {normalizeStatus(ticket.status)}
                 </span>
               </div>
 

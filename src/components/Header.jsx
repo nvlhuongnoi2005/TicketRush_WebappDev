@@ -39,7 +39,7 @@ function Header() {
   }
 
   return (
-    <header className={`w-full border-b ${isDark ? 'border-slate-800 bg-slate-900/90 text-slate-50' : 'border-slate-200 bg-white/90 text-slate-900'} text-sm shadow-sm backdrop-blur`}>
+    <header className={`w-full sticky top-0 z-50 border-b ${isDark ? 'border-slate-800 bg-slate-900/90 text-slate-50' : 'border-slate-200 bg-white/90 text-slate-900'} text-sm shadow-sm backdrop-blur`}>
       <div className="px-4 md:px-8">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 py-4">
           <Link to="/" className="flex items-center gap-3">

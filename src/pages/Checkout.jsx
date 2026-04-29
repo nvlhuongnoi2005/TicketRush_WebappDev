@@ -16,6 +16,11 @@ function Checkout() {
   const [buyerEmail, setBuyerEmail] = useState(user?.email || '')
   const [order, setOrder] = useState(null)
   const [message, setMessage] = useState('')
+  const [lockExpiresAt, setLockExpiresAt] = useState(null)
+  const [lockedSeatIds, setLockedSeatIds] = useState([])
+  const [now, setNow] = useState(Date.now())
+  const [isPaid, setIsPaid] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -23,6 +28,58 @@ function Checkout() {
       setBuyerEmail(user.email || '')
     }
   }, [user])
+
+  // Restore lock info from localStorage (set by SeatMap)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('seatLock')
+      if (!raw) return
+      const data = JSON.parse(raw)
+      if (data && data.eventId === event?.id) {
+        setLockedSeatIds(data.lockedSeatIds || [])
+        setLockExpiresAt(data.expiresAt || null)
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, [event])
+
+  useEffect(() => {
+    const iv = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(iv)
+  }, [])
+
+  // Release seat lock if user leaves checkout without paying
+  useEffect(() => {
+    return () => {
+      if (!isPaid) {
+        try {
+          localStorage.removeItem('seatLock')
+        } catch (err) {}
+      }
+    }
+  }, [isPaid])
+
+  useEffect(() => {
+    if (!lockExpiresAt) return
+    const remaining = lockExpiresAt - Date.now()
+    if (remaining <= 0) {
+      // lock expired
+      try { localStorage.removeItem('seatLock') } catch (err) {}
+      setLockedSeatIds([])
+      setLockExpiresAt(null)
+      setMessage('Seat lock expired — seats were released.')
+      // go back to seat map
+      setTimeout(() => navigate(`/seat-map/${event.id}`), 1200)
+    }
+  }, [now, lockExpiresAt, event, navigate])
+
+  const formatDuration = (ms) => {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  }
 
   const summaryItems = useMemo(() => {
     return seats.map((seat) => ({
@@ -44,33 +101,7 @@ function Checkout() {
     )
   }
 
-  const handleCreateOrder = () => {
-    if (!seats.length) {
-      setMessage('Please select seats first.')
-      return
-    }
-
-    const nextOrder = {
-      id: Date.now(),
-      event_id: event.id,
-      user_id: user?.id || null,
-      buyer_name: buyerName,
-      buyer_email: buyerEmail,
-      total_amount: totalAmount,
-      status: 'pending',
-      created_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-      items: summaryItems.map((seat) => ({
-        seat_id: seat.id,
-        seat_label: seat.label,
-        price: seat.price,
-      })),
-    }
-
-    saveOrder(nextOrder)
-    setOrder(nextOrder)
-    setMessage('Order created. You can now confirm payment.')
-  }
+  // Note: orders are created and finalized in `handleConfirmPayment`.
 
   const handleConfirmPayment = () => {
     const baseOrder = order || {
@@ -95,8 +126,9 @@ function Checkout() {
     const createdTickets = createTicketsForOrder({ order: paidOrder, event, seats: summaryItems, user })
     saveExtraTickets(createdTickets)
 
-    setMessage('Ticket purchase successful! Redirecting to your tickets...')
-    navigate('/tickets', { state: { message: 'Ticket purchase successful!' } })
+    setIsPaid(true)
+    setMessage('Ticket registration successful.')
+    setShowSuccess(true)
   }
 
   return (
@@ -143,6 +175,14 @@ function Checkout() {
               <p className="text-3xl font-semibold text-sky-700">{totalAmount.toLocaleString()} VND</p>
             </div>
 
+            {lockExpiresAt && (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                <p className="text-slate-500">Lock timer</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900">{formatDuration(lockExpiresAt - now)}</p>
+                <p className="text-xs text-slate-500">Seats will be released when the timer reaches 00:00.</p>
+              </div>
+            )}
+
             <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <h3 className="font-semibold">Buyer information</h3>
               <div>
@@ -166,13 +206,6 @@ function Checkout() {
             <div className="grid gap-3">
               <button
                 type="button"
-                onClick={handleCreateOrder}
-                className="rounded-full bg-emerald-500 px-5 py-3 font-semibold text-white transition hover:bg-emerald-400"
-              >
-                Create order
-              </button>
-              <button
-                type="button"
                 onClick={handleConfirmPayment}
                 className="rounded-full bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-400"
               >
@@ -185,6 +218,31 @@ function Checkout() {
           </aside>
         </div>
       </section>
+      {showSuccess && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg">
+            <h3 className="text-xl font-semibold mb-3">Ticket purchase successful</h3>
+            <p className="mb-4 text-sm text-slate-600">Thank you for your purchase. You can view your tickets in the Tickets section.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowSuccess(false)
+                  navigate('/')
+                }}
+                className="flex-1 rounded-full border border-slate-200 px-4 py-2 text-center font-semibold text-slate-900"
+              >
+                Done
+              </button>
+              <button
+                onClick={() => navigate('/tickets')}
+                className="flex-1 rounded-full bg-sky-500 px-4 py-2 font-semibold text-white"
+              >
+                Go to my tickets
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

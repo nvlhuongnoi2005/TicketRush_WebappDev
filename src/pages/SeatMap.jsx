@@ -60,6 +60,47 @@ function SeatMap() {
     return () => clearTimeout(timeout)
   }, [lockExpiresAt])
 
+  // Persist lock info to localStorage so checkout can show countdown and
+  // other pages can detect existing locks.
+  useEffect(() => {
+    const key = 'seatLock'
+    if (lockedSeatIds.length && lockExpiresAt) {
+      try {
+        localStorage.setItem(
+          key,
+          JSON.stringify({ eventId: event?.id, lockedSeatIds, expiresAt: lockExpiresAt })
+        )
+      } catch (err) {
+        // ignore
+      }
+    } else {
+      try {
+        const prev = JSON.parse(localStorage.getItem(key) || 'null')
+        if (prev && prev.eventId === event?.id) {
+          localStorage.removeItem(key)
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+  }, [lockedSeatIds, lockExpiresAt, event])
+
+  // On mount, restore existing lock if present for this event
+  useEffect(() => {
+    try {
+      const key = 'seatLock'
+      const raw = localStorage.getItem(key)
+      if (!raw) return
+      const data = JSON.parse(raw)
+      if (data && data.eventId === event?.id) {
+        setLockedSeatIds(data.lockedSeatIds || [])
+        setLockExpiresAt(data.expiresAt || null)
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, [event])
+
   if (!event) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-slate-900 md:px-8">
@@ -90,7 +131,7 @@ function SeatMap() {
 
   const selectedSeats = seats.filter((seat) => lockedSeatIds.includes(seat.id))
   const totalAmount = selectedSeats.reduce((sum, seat) => sum + seat.price, 0)
-  const countdown = lockExpiresAt ? formatDuration(lockExpiresAt - now) : '10:00'
+  // countdown is shown only on Checkout page; don't render it here
 
   return (
     <div className="bg-slate-50 text-slate-900">
@@ -183,10 +224,7 @@ function SeatMap() {
               <p className="text-sm text-slate-500">Total</p>
               <p className="text-2xl font-semibold text-sky-700">{totalAmount.toLocaleString()} VND</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-              <p className="text-slate-500">Lock timer</p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">{countdown}</p>
-            </div>
+            {/* Lock timer intentionally hidden on SeatMap; shown on Checkout only */}
             <div className="grid gap-3">
               <Link
                 to="/checkout"
