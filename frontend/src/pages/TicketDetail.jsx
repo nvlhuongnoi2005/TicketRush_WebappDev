@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ticketsApi } from '../lib/api'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function TicketDetail() {
   const { ticketId } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const [ticket, setTicket] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (!user) { navigate('/login', { replace: true }); return }
     ticketsApi.get(ticketId)
       .then(setTicket)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [ticketId])
+  }, [user, ticketId])
 
   const handleDownload = () => {
     const link = document.createElement('a')

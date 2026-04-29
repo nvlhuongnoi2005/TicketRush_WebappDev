@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ticketsApi } from '../lib/api'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const badgeStyle = {
   valid: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/30',
@@ -10,6 +11,8 @@ const badgeStyle = {
 
 function Tickets() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -17,11 +20,12 @@ function Tickets() {
   const [successMsg, setSuccessMsg] = useState(location.state?.message || '')
 
   useEffect(() => {
+    if (!user) { navigate('/login', { replace: true }); return }
     ticketsApi.list()
       .then(setTickets)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [])
+  }, [user])
 
   const filtered = useMemo(() => {
     if (filter === 'all') return tickets
