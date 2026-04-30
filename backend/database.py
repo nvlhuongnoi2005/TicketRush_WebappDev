@@ -22,3 +22,18 @@ def get_db():
 def init_db():
     from models import user, event, seat, order, ticket, queue  # noqa: F401
     Base.metadata.create_all(bind=engine)
+    _run_migrations()
+
+
+def _run_migrations():
+    """Thêm các cột mới vào bảng hiện có mà không mất dữ liệu."""
+    from sqlalchemy import text
+    migrations = [
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_cooldown_until TIMESTAMP",
+    ]
+    with engine.begin() as conn:
+        for stmt in migrations:
+            try:
+                conn.execute(text(stmt))
+            except Exception:
+                pass

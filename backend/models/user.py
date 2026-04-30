@@ -26,5 +26,6 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     reset_token = Column(String(100), nullable=True)
     reset_token_expires_at = Column(DateTime, nullable=True)
+    payment_cooldown_until = Column(DateTime, nullable=True)
 
     orders = relationship("Order", back_populates="user")

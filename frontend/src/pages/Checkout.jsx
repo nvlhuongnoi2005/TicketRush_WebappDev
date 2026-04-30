@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ordersApi, seatsApi } from '../lib/api'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -32,6 +32,32 @@ function Checkout() {
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
   const [now, setNow] = useState(Date.now())
+
+  // Refs để cleanup effect có thể đọc giá trị mới nhất mà không cần deps
+  const doneRef = useRef(false)
+  const orderRef = useRef(null)
+  const abandonCalledRef = useRef(false)
+
+  // Sync refs với state để cleanup luôn có giá trị mới nhất
+  useEffect(() => { doneRef.current = done }, [done])
+  useEffect(() => { orderRef.current = order }, [order])
+
+  // Gọi abandon khi rời trang (cả navigate trong SPA lẫn đóng tab)
+  useEffect(() => {
+    return () => {
+      if (doneRef.current || abandonCalledRef.current) return
+      const currentOrder = orderRef.current
+      if (!currentOrder?.id) return
+      abandonCalledRef.current = true
+      const token = localStorage.getItem('ticketrush_token')
+      // keepalive: true đảm bảo request hoàn thành kể cả khi tab bị đóng
+      fetch(`/api/orders/${currentOrder.id}/abandon`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        keepalive: true,
+      }).catch(() => {})
+    }
+  }, [])
 
   // 1s clock
   useEffect(() => {

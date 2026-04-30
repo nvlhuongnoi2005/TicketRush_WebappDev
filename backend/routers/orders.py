@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import List
 from urllib.parse import quote
 
@@ -10,8 +11,11 @@ from database import get_db
 from core.deps import get_current_user
 from models.user import User
 from models.order import Order, OrderStatus
+from models.seat import Seat, SeatStatus
 from schemas.order import OrderCreate, OrderOut, OrderItemOut
 from services.order_service import create_order, confirm_order
+
+PAYMENT_COOLDOWN_SECONDS = 180  # 3 phút
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
@@ -110,6 +114,41 @@ def get_payment_qr(
         "amount": order.total_amount,
         "description": f"TICKETRUSH ORDER {order_id}",
     }
+
+
+@router.post("/{order_id}/abandon", status_code=204)
+def abandon_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Người dùng rời trang thanh toán mà chưa xác nhận.
+    Huỷ đơn, giải phóng ghế và bật cooldown 3 phút cho user.
+    """
+    order = db.query(Order).filter(
+        Order.id == order_id,
+        Order.user_id == current_user.id,
+        Order.status == OrderStatus.pending,
+    ).first()
+    if not order:
+        return  # đơn không còn pending, bỏ qua
+
+    for item in order.items:
+        seat = db.query(Seat).filter(
+            Seat.id == item.seat_id,
+            Seat.status == SeatStatus.locked,
+        ).first()
+        if seat:
+            seat.status = SeatStatus.available
+            seat.locked_by = None
+            seat.locked_at = None
+            seat.lock_expires_at = None
+
+    order.status = OrderStatus.cancelled
+
+    current_user.payment_cooldown_until = datetime.utcnow() + timedelta(seconds=PAYMENT_COOLDOWN_SECONDS)
+    db.commit()
 
 
 @router.post("/{order_id}/confirm", response_model=OrderOut)

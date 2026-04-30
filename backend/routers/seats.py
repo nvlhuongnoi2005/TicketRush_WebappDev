@@ -25,6 +25,18 @@ def lock_multiple_seats(
         raise HTTPException(status_code=400, detail="Danh sách ghế không được rỗng")
 
     now = datetime.utcnow()
+
+    if current_user.payment_cooldown_until and now < current_user.payment_cooldown_until:
+        remaining_secs = int((current_user.payment_cooldown_until - now).total_seconds())
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "code": "PAYMENT_COOLDOWN",
+                "message": "Bạn vừa hủy quá trình thanh toán. Vui lòng chờ trước khi giữ ghế tiếp theo.",
+                "cooldown_until": current_user.payment_cooldown_until.isoformat(),
+                "remaining_seconds": remaining_secs,
+            },
+        )
     current_count = db.query(Seat).filter(
         Seat.locked_by == current_user.id,
         Seat.status == SeatStatus.locked,

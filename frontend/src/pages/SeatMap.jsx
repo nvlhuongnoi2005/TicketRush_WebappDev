@@ -4,6 +4,18 @@ import { eventsApi, seatsApi } from '../lib/api'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 
+const COOLDOWN_KEY = 'ticketrush_payment_cooldown'
+
+function getCooldownRemaining() {
+  const until = localStorage.getItem(COOLDOWN_KEY)
+  if (!until) return 0
+  return Math.max(0, Math.ceil((new Date(until).getTime() - Date.now()) / 1000))
+}
+
+function formatCooldown(secs) {
+  return `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`
+}
+
 const STATUS_STYLE = {
   available: 'bg-emerald-500 hover:bg-emerald-400 cursor-pointer text-white',
   selected:  'bg-sky-500 cursor-pointer text-white ring-2 ring-sky-300 ring-offset-1',
@@ -24,6 +36,7 @@ function SeatMap() {
   const [loading, setLoading] = useState(true)
   const [locking, setLocking] = useState(false)
   const [error, setError] = useState('')
+  const [cooldownSecs, setCooldownSecs] = useState(getCooldownRemaining)
 
   // Patch a single seat in local state (used when unlocking a locked_by_me seat)
   const patchSeat = useCallback((seatId, updates) => {
@@ -76,6 +89,17 @@ function SeatMap() {
     const iv = setInterval(fetchSeatMap, 15000)
     return () => clearInterval(iv)
   }, [event, fetchSeatMap])
+
+  // Đếm ngược cooldown mỗi giây
+  useEffect(() => {
+    if (cooldownSecs <= 0) return
+    const iv = setInterval(() => {
+      const remaining = getCooldownRemaining()
+      setCooldownSecs(remaining)
+      if (remaining <= 0) localStorage.removeItem(COOLDOWN_KEY)
+    }, 1000)
+    return () => clearInterval(iv)
+  }, [cooldownSecs > 0])
 
   // Drop locally-selected seats only when someone ELSE locks or buys them.
   // Do NOT drop seats that are still locked by this user (locked_by_me).
@@ -180,6 +204,10 @@ function SeatMap() {
 
       navigate('/checkout', { state: { seatIds: finalIds, eventTitle: event?.title } })
     } catch (e) {
+      if (e.code === 'PAYMENT_COOLDOWN' && e.cooldown_until) {
+        localStorage.setItem(COOLDOWN_KEY, e.cooldown_until)
+        setCooldownSecs(getCooldownRemaining())
+      }
       setError(e.message)
     } finally {
       setLocking(false)
@@ -321,12 +349,22 @@ function SeatMap() {
               </div>
             )}
 
+            {cooldownSecs > 0 && (
+              <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-3 text-center">
+                <p className="text-xs font-medium text-amber-400">Thời gian chờ do hủy thanh toán</p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums text-amber-300">
+                  {formatCooldown(cooldownSecs)}
+                </p>
+                <p className={`mt-1 text-xs ${sub}`}>Bạn có thể giữ ghế sau khi hết thời gian chờ.</p>
+              </div>
+            )}
+
             <button
               onClick={handleProceedToPayment}
-              disabled={selectedSeats.length === 0 || locking}
+              disabled={selectedSeats.length === 0 || locking || cooldownSecs > 0}
               className="w-full rounded-full bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {locking ? 'Đang xử lý...' : `Tiến hành thanh toán (${selectedSeats.length})`}
+              {locking ? 'Đang xử lý...' : cooldownSecs > 0 ? `Chờ ${formatCooldown(cooldownSecs)}` : `Tiến hành thanh toán (${selectedSeats.length})`}
             </button>
           </aside>
         </div>

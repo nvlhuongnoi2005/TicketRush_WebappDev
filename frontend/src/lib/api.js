@@ -29,11 +29,15 @@ async function request(method, path, data) {
     let errMsg
     if (Array.isArray(msg)) {
       errMsg = msg.map((e) => `${e.loc?.slice(1).join('.')} — ${e.msg}`).join('; ')
+    } else if (msg && typeof msg === 'object') {
+      errMsg = msg.message || JSON.stringify(msg)
     } else {
       errMsg = String(msg)
     }
     const err = new Error(errMsg)
     err.status = res.status
+    if (msg?.code) err.code = msg.code
+    if (msg?.cooldown_until) err.cooldown_until = msg.cooldown_until
     throw err
   }
 
@@ -77,6 +81,7 @@ export const ordersApi = {
   get: (id) => api.get(`/orders/${id}`),
   confirm: (id) => api.post(`/orders/${id}/confirm`),
   paymentQr: (id) => api.get(`/orders/${id}/payment-qr`),
+  abandon: (id) => api.post(`/orders/${id}/abandon`),
 }
 
 // ─── Tickets ───────────────────────────────────────────────────────────────────
