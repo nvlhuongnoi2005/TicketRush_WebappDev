@@ -109,7 +109,7 @@ def confirm_order(db: Session, order_id: int, user_id: int) -> List[Ticket]:
 
 
 def cancel_expired_orders(db: Session) -> int:
-    """Gọi bởi scheduler: hủy đơn pending đã quá 10 phút."""
+    """Gọi bởi scheduler: hủy đơn pending đã quá 10 phút và giải phóng seat lock."""
     now = datetime.utcnow()
     expired_orders = db.query(Order).filter(
         Order.status == OrderStatus.pending,
@@ -118,6 +118,17 @@ def cancel_expired_orders(db: Session) -> int:
 
     count = 0
     for order in expired_orders:
+        # Release each locked seat atomically in the same transaction
+        for item in order.items:
+            seat = db.query(Seat).filter(
+                Seat.id == item.seat_id,
+                Seat.status == SeatStatus.locked,
+            ).first()
+            if seat:
+                seat.status = SeatStatus.available
+                seat.locked_by = None
+                seat.locked_at = None
+                seat.lock_expires_at = None
         order.status = OrderStatus.cancelled
         count += 1
 

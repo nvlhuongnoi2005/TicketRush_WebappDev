@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { getEventById } from '../data/mockData'
+import { eventsApi } from '../lib/api'
 import { useQueue } from '../context/QueueContext'
 
 function WaitingRoom() {
   const { eventId } = useParams()
   const navigate = useNavigate()
-  const event = getEventById(eventId)
+  const [event, setEvent] = useState(null)
   const { userPosition, isAdmitted, getAccess, activeUsers, CAPACITY_CONFIG } = useQueue()
+
+  useEffect(() => {
+    eventsApi.get(eventId).then(setEvent).catch(console.error)
+  }, [eventId])
   const [displayPosition, setDisplayPosition] = useState(userPosition)
 
   const accessToken = useMemo(() => `MOCK-${eventId}-${String(eventId).padStart(4, '0')}`, [eventId])

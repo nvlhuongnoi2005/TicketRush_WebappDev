@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ticketsApi } from '../lib/api'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 const badgeStyle = {
   valid: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/30',
@@ -12,7 +13,8 @@ const badgeStyle = {
 function Tickets() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, authLoading } = useAuth()
+  const { isDark } = useTheme()
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -20,23 +22,32 @@ function Tickets() {
   const [successMsg, setSuccessMsg] = useState(location.state?.message || '')
 
   useEffect(() => {
+    if (authLoading) return
     if (!user) { navigate('/login', { replace: true }); return }
+    setLoading(true)
     ticketsApi.list()
       .then(setTickets)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [user])
+  }, [user, authLoading])
 
   const filtered = useMemo(() => {
     if (filter === 'all') return tickets
     return tickets.filter((t) => (t.status || 'valid') === filter)
   }, [tickets, filter])
 
+  const bg = isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
+  const card = isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'
+  const subText = isDark ? 'text-slate-400' : 'text-slate-500'
+  const filterInactive = isDark
+    ? 'border-white/10 text-slate-400 hover:border-white/20 hover:text-white'
+    : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-900'
+
   return (
-    <div className="bg-slate-950 text-white">
+    <div className={bg}>
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="mb-6">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Vé của tôi</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-500">Vé của tôi</p>
           <h1 className="text-3xl font-semibold">Ticket library</h1>
         </div>
 
@@ -48,7 +59,7 @@ function Tickets() {
         )}
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-300">
+          <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-400">
             {error}
           </div>
         )}
@@ -60,8 +71,8 @@ function Tickets() {
               onClick={() => setFilter(f)}
               className={`rounded-full border px-4 py-1.5 text-sm font-medium capitalize transition ${
                 filter === f
-                  ? 'border-cyan-400/40 bg-cyan-400/15 text-cyan-300'
-                  : 'border-white/10 text-slate-400 hover:border-white/20 hover:text-white'
+                  ? 'border-cyan-400/40 bg-cyan-400/15 text-cyan-400'
+                  : filterInactive
               }`}
             >
               {f === 'all' ? 'Tất cả' : f}
@@ -70,10 +81,10 @@ function Tickets() {
         </div>
 
         {loading ? (
-          <div className="py-16 text-center text-slate-400">Đang tải vé...</div>
+          <div className={`py-16 text-center ${subText}`}>Đang tải vé...</div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
-            <p className="text-slate-400">Không có vé nào.</p>
+          <div className={`rounded-3xl border p-12 text-center ${card}`}>
+            <p className={subText}>Không có vé nào.</p>
             <Link to="/" className="mt-4 inline-flex rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950">
               Xem sự kiện
             </Link>
@@ -81,11 +92,11 @@ function Tickets() {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((ticket) => (
-              <article key={ticket.id} className="rounded-3xl border border-white/10 bg-white/5 p-5 transition hover:border-cyan-400/20">
+              <article key={ticket.id} className={`rounded-3xl border p-5 transition hover:border-cyan-400/30 ${card}`}>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-lg font-semibold">{ticket.event_title}</h2>
-                    <p className="text-sm text-slate-400">
+                    <p className={`text-sm ${subText}`}>
                       {ticket.seat_label}{ticket.section_name ? ` · ${ticket.section_name}` : ''}
                     </p>
                   </div>
@@ -102,10 +113,10 @@ function Tickets() {
                       className="h-24 w-24 rounded-xl bg-white p-1"
                     />
                   )}
-                  <div className="space-y-1 text-sm text-slate-300">
+                  <div className={`space-y-1 text-sm ${subText}`}>
                     {ticket.event_date && <p>{new Date(ticket.event_date).toLocaleString('vi-VN')}</p>}
                     {ticket.venue_name && <p>{ticket.venue_name}</p>}
-                    <p className="font-medium text-white">{Number(ticket.price || 0).toLocaleString()} VND</p>
+                    <p className="font-semibold text-cyan-400">{Number(ticket.price || 0).toLocaleString()} VND</p>
                   </div>
                 </div>
 

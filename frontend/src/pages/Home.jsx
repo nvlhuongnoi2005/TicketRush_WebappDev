@@ -91,7 +91,7 @@ function Home() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-400/40"
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none focus:border-sky-400/40 ${isDark ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
             >
               <option value="all">All</option>
               <option value="on_sale">On Sale</option>
@@ -119,7 +119,7 @@ function Home() {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filteredEvents.map((event) => (
-              <article key={event.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-lg transition hover:-translate-y-1 hover:border-cyan-400/30">
+              <article key={event.id} className={`overflow-hidden rounded-3xl border shadow-lg transition hover:-translate-y-1 hover:border-cyan-400/30 ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'}`}>
                 <div className="h-52 overflow-hidden">
                   <img src={event.banner_url} alt={event.title} className="h-full w-full object-cover" />
                 </div>
@@ -127,14 +127,14 @@ function Home() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-xl font-semibold">{event.title}</h3>
-                      <p className="text-sm text-slate-400">{event.artist}</p>
+                      <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{event.artist}</p>
                     </div>
                     <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusStyle[event.status]}`}>
                       {statusLabel[event.status]}
                     </span>
                   </div>
 
-                  <div className="space-y-2 text-sm text-slate-300">
+                  <div className={`space-y-2 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     <p>{new Date(event.event_date).toLocaleString()}</p>
                     <p>{event.venue_name}</p>
                     {event.min_price && <p>From {event.min_price.toLocaleString()} VND</p>}

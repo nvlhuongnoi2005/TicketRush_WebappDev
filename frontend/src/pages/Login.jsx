@@ -41,7 +41,7 @@ function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="username" className="mb-2 block text-sm font-medium text-slate-300">
+              <label htmlFor="username" className="mb-2 block text-sm font-medium text-slate-700">
                 Username
               </label>
               <input
@@ -56,7 +56,7 @@ function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-300">
+              <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
                 Password
               </label>
               <input

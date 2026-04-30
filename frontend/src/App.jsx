@@ -1,4 +1,5 @@
 import { useLocation, Routes, Route } from 'react-router-dom'
+import { useTheme } from './context/ThemeContext.jsx'
 import { QueueInterceptor } from './components/QueueInterceptor.jsx'
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
@@ -17,17 +18,19 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import Register from './pages/Register.jsx'
 import NotFound from './pages/NotFound.jsx'
+import Profile from './pages/Profile.jsx'
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password']
 
 function App() {
   const location = useLocation()
+  const { isDark } = useTheme()
   const isAuthPage =
     AUTH_PATHS.includes(location.pathname) ||
     location.pathname.startsWith('/reset-password/')
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950">
+    <div className={`flex min-h-screen flex-col ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
       {!isAuthPage && <Header />}
 
       <main className="grow">
@@ -47,6 +50,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </QueueInterceptor>

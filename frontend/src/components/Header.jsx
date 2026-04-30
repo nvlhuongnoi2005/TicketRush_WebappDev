@@ -77,9 +77,12 @@ function Header() {
 
             {user ? (
               <>
-                <div className={`rounded-full px-4 py-2 font-medium ${isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-900'}`}>
+                <Link
+                  to="/profile"
+                  className={`rounded-full px-4 py-2 font-medium transition ${isDark ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'}`}
+                >
                   Hi, {user.full_name}
-                </div>
+                </Link>
                 {user.role === 'admin' && (
                   <Link to="/admin" className={`rounded-full px-4 py-2 font-medium transition ${isDark ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'}`}>
                     Admin

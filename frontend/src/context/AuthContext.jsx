@@ -13,6 +13,8 @@ function readStoredUser() {
 export function AuthProvider({ children }) {
   // Restore user synchronously so pages don't flash to /login on refresh
   const [user, setUser] = useState(readStoredUser)
+  // authLoading: true while the initial token validation is in-flight
+  const [authLoading, setAuthLoading] = useState(true)
 
   const _setUser = useCallback((u) => {
     setUser(u)
@@ -20,16 +22,17 @@ export function AuthProvider({ children }) {
     else    localStorage.removeItem(USER_KEY)
   }, [])
 
-  // Verify token in background on mount; clear if expired
+  // Verify token on mount; clear if expired/invalid
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY)
-    if (!token) { _setUser(null); return }
+    if (!token) { _setUser(null); setAuthLoading(false); return }
     authApi.me()
       .then(_setUser)
       .catch(() => {
         localStorage.removeItem(TOKEN_KEY)
         _setUser(null)
       })
+      .finally(() => setAuthLoading(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const login = useCallback(async ({ username, password }) => {
@@ -53,11 +56,12 @@ export function AuthProvider({ children }) {
 
   const value = useMemo(() => ({
     user,
+    authLoading,
     isAuthenticated: Boolean(user),
     login,
     register,
     logout,
-  }), [user, login, register, logout])
+  }), [user, authLoading, login, register, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

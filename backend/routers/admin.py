@@ -76,6 +76,19 @@ def delete_event(event_id: int, db: Session = Depends(get_db), _=Depends(get_cur
     # Collect all seat IDs before cascade removes them
     seat_ids = [seat.id for sec in event.sections for seat in sec.seats]
 
+    # Cancel pending orders that contain seats from this event
+    if seat_ids:
+        affected_order_ids = (
+            db.query(OrderItem.order_id)
+            .filter(OrderItem.seat_id.in_(seat_ids))
+            .distinct()
+            .subquery()
+        )
+        db.query(Order).filter(
+            Order.id.in_(affected_order_ids),
+            Order.status == OrderStatus.pending,
+        ).update({"status": OrderStatus.cancelled}, synchronize_session=False)
+
     # Remove every FK-constrained row not covered by ORM cascade
     db.query(Ticket).filter(Ticket.event_id == event_id).delete(synchronize_session=False)
     db.query(QueueEntry).filter(QueueEntry.event_id == event_id).delete(synchronize_session=False)
