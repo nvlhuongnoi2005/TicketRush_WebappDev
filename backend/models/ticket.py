@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from sqlalchemy import Column, DateTime, Enum as SQLEnum, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Enum as SQLEnum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -19,8 +19,8 @@ class Ticket(Base):
     seat_id = Column(Integer, ForeignKey("seats.id"), nullable=False)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    qr_data = Column(String(200))     # dữ liệu encode vào QR (ticket_id + secret)
-    qr_image_url = Column(String(500))  # đường dẫn ảnh QR đã tạo
+    qr_data = Column(String(200))
+    qr_image_url = Column(Text)
     status = Column(SQLEnum(TicketStatus), default=TicketStatus.valid)
     price = Column(Float, nullable=False)
     issued_at = Column(DateTime, default=datetime.utcnow)

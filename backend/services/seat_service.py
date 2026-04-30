@@ -1,13 +1,10 @@
 """
-Seat locking service.
+Seat locking service — PostgreSQL only.
 
-Concurrency strategy:
-- SQLite (dev): sử dụng application-level mutex + immediate transaction
-- PostgreSQL (prod): SELECT ... FOR UPDATE NOWAIT để database tự enforce row-level lock
-  → Khi 2 request cùng lúc lock cùng ghế, chỉ 1 transaction thành công,
-    transaction kia nhận OperationalError / LockNotAvailable và trả về "failed".
+Concurrency strategy: SELECT ... FOR UPDATE NOWAIT
+→ Khi 2 request cùng lúc lock cùng ghế, chỉ 1 transaction thành công,
+  transaction kia nhận OperationalError / LockNotAvailable và trả về "failed".
 """
-import threading
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
@@ -17,13 +14,6 @@ from sqlalchemy.exc import OperationalError
 
 from core.config import settings
 from models.seat import Seat, SeatStatus
-
-# Application-level lock cho SQLite dev (không cần với PostgreSQL)
-_sqlite_lock = threading.Lock()
-
-
-def _is_postgres(db: Session) -> bool:
-    return "postgresql" in str(db.get_bind().dialect.name)
 
 
 def lock_seats(
@@ -41,30 +31,15 @@ def lock_seats(
 
     for seat_id in seat_ids:
         try:
-            if _is_postgres(db):
-                _lock_seat_postgres(db, seat_id, user_id, expires_at)
-            else:
-                _lock_seat_sqlite(db, seat_id, user_id, expires_at)
+            stmt = select(Seat).where(Seat.id == seat_id).with_for_update(nowait=True)
+            seat = db.execute(stmt).scalar_one_or_none()
+            _do_lock(db, seat, seat_id, user_id, expires_at)
             success.append(seat_id)
         except (ValueError, OperationalError):
             db.rollback()
             failed.append(seat_id)
 
     return success, failed
-
-
-def _lock_seat_postgres(db: Session, seat_id: int, user_id: int, expires_at: datetime):
-    """PostgreSQL: dùng SELECT FOR UPDATE NOWAIT – raise nếu row đang bị lock."""
-    stmt = select(Seat).where(Seat.id == seat_id).with_for_update(nowait=True)
-    seat = db.execute(stmt).scalar_one_or_none()
-    _do_lock(db, seat, seat_id, user_id, expires_at)
-
-
-def _lock_seat_sqlite(db: Session, seat_id: int, user_id: int, expires_at: datetime):
-    """SQLite: application-level mutex đảm bảo chỉ 1 thread ghi tại 1 thời điểm."""
-    with _sqlite_lock:
-        seat = db.query(Seat).filter(Seat.id == seat_id).first()
-        _do_lock(db, seat, seat_id, user_id, expires_at)
 
 
 def _do_lock(db: Session, seat, seat_id: int, user_id: int, expires_at: datetime):
