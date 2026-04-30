@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ordersApi } from '../lib/api'
+import { ordersApi, seatsApi } from '../lib/api'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 
@@ -56,7 +56,11 @@ function Checkout() {
           console.error('QR fetch error:', e)
         }
       })
-      .catch((e) => setError(e.message))
+      .catch(async (e) => {
+        // Release the locks so seats aren't stranded until expiry
+        await Promise.allSettled(seatIds.map((id) => seatsApi.unlock(id)))
+        setError(e.message)
+      })
       .finally(() => setLoading(false))
   }, [user, authLoading, seatIds.join(',')])
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { adminApi } from '../lib/api'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const emptyForm = {
   title: '',
@@ -17,12 +18,21 @@ const emptyForm = {
 }
 
 function AdminEvents() {
+  const { user, authLoading } = useAuth()
+  const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!user || user.role !== 'admin') {
+      navigate('/login', { replace: true })
+    }
+  }, [user, authLoading, navigate])
 
   const loadEvents = () =>
     adminApi.events.list()

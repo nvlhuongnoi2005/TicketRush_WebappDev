@@ -6,17 +6,17 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 
 const statusLabel = {
-  on_sale: 'On Sale',
-  upcoming: 'Upcoming',
-  sold_out: 'Sold Out',
-  finished: 'Finished',
+  on_sale:   'On Sale',
+  sold_out:  'Sold Out',
+  finished:  'Finished',
+  cancelled: 'Cancelled',
 }
 
 const statusStyle = {
-  on_sale: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/30',
-  upcoming: 'bg-sky-400/15 text-sky-300 border-sky-400/30',
-  sold_out: 'bg-rose-400/15 text-rose-300 border-rose-400/30',
-  finished: 'bg-slate-400/15 text-slate-300 border-slate-400/30',
+  on_sale:   'bg-emerald-400/15 text-emerald-300 border-emerald-400/30',
+  sold_out:  'bg-rose-400/15 text-rose-300 border-rose-400/30',
+  finished:  'bg-slate-400/15 text-slate-300 border-slate-400/30',
+  cancelled: 'bg-orange-400/15 text-orange-300 border-orange-400/30',
 }
 
 function Home() {
@@ -95,9 +95,9 @@ function Home() {
             >
               <option value="all">All</option>
               <option value="on_sale">On Sale</option>
-              <option value="upcoming">Upcoming</option>
               <option value="sold_out">Sold Out</option>
               <option value="finished">Finished</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
         </div>
@@ -120,8 +120,11 @@ function Home() {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filteredEvents.map((event) => (
               <article key={event.id} className={`overflow-hidden rounded-3xl border shadow-lg transition hover:-translate-y-1 hover:border-cyan-400/30 ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'}`}>
-                <div className="h-52 overflow-hidden">
-                  <img src={event.banner_url} alt={event.title} className="h-full w-full object-cover" />
+                <div className={`h-52 overflow-hidden ${!event.banner_url ? (isDark ? 'bg-slate-800' : 'bg-slate-200') : ''}`}>
+                  {event.banner_url
+                    ? <img src={event.banner_url} alt={event.title} className="h-full w-full object-cover" />
+                    : <div className="flex h-full items-center justify-center text-sm text-slate-400">No image</div>
+                  }
                 </div>
                 <div className="space-y-4 p-5">
                   <div className="flex items-start justify-between gap-3">

@@ -5,21 +5,10 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 
 const STATUS_STYLE = {
-  available:    'bg-emerald-500 hover:bg-emerald-400 cursor-pointer text-white',
-  locked:       'bg-amber-400 cursor-not-allowed text-slate-950 opacity-70',
-  sold:         'bg-rose-500 cursor-not-allowed text-white opacity-50',
-  locked_by_me: 'bg-sky-500 cursor-pointer text-white ring-2 ring-sky-300 ring-offset-1',
-}
-
-const toUtcMs = (dateStr) => {
-  if (!dateStr) return null
-  const s = String(dateStr)
-  return new Date(s.match(/[Z+]/) ? s : s + 'Z').getTime()
-}
-
-function formatDuration(ms) {
-  const secs = Math.max(Math.floor(ms / 1000), 0)
-  return `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`
+  available: 'bg-emerald-500 hover:bg-emerald-400 cursor-pointer text-white',
+  selected:  'bg-sky-500 cursor-pointer text-white ring-2 ring-sky-300 ring-offset-1',
+  locked:    'bg-amber-400 cursor-not-allowed text-slate-950 opacity-70',
+  sold:      'bg-rose-500 cursor-not-allowed text-white opacity-50',
 }
 
 function SeatMap() {
@@ -31,18 +20,12 @@ function SeatMap() {
   const [event, setEvent] = useState(null)
   const [seatMap, setSeatMap] = useState(null)
   const [selectedSectionId, setSelectedSectionId] = useState(null)
+  const [selectedSeatIds, setSelectedSeatIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
   const [locking, setLocking] = useState(false)
   const [error, setError] = useState('')
-  const [now, setNow] = useState(Date.now())
 
-  // 1-second clock for countdown
-  useEffect(() => {
-    const iv = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(iv)
-  }, [])
-
-  // Patch a single seat in the local seatMap state
+  // Patch a single seat in local state (used when unlocking a locked_by_me seat)
   const patchSeat = useCallback((seatId, updates) => {
     setSeatMap((prev) => {
       if (!prev) return prev
@@ -65,7 +48,7 @@ function SeatMap() {
     }
   }, [eventId])
 
-  // Initial load
+  // Initial load — also restores seats locked in a previous session (e.g. logout mid-checkout)
   useEffect(() => {
     if (authLoading) return
     if (!user) { navigate('/login', { replace: true }); return }
@@ -75,19 +58,44 @@ function SeatMap() {
         setEvent(ev)
         setSeatMap(map)
         setSelectedSectionId(map.sections[0]?.section_id ?? null)
+        // If the user has seats left locked from a prior session, show them as selected
+        // so they can either continue to payment or click to release the hold.
+        const myLockedIds = map.sections
+          .flatMap((s) => s.seats)
+          .filter((s) => s.locked_by_me)
+          .map((s) => s.id)
+        if (myLockedIds.length) setSelectedSeatIds(new Set(myLockedIds))
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [eventId, user, authLoading])
 
-  // Poll seat map every 15s so other users' locks are visible
+  // Poll seat map every 15s so other users' locks/sales are visible
   useEffect(() => {
     if (!event) return
     const iv = setInterval(fetchSeatMap, 15000)
     return () => clearInterval(iv)
   }, [event, fetchSeatMap])
 
-  // Derived state
+  // Drop locally-selected seats only when someone ELSE locks or buys them.
+  // Do NOT drop seats that are still locked by this user (locked_by_me).
+  useEffect(() => {
+    if (!seatMap) return
+    const flat = seatMap.sections.flatMap((s) => s.seats)
+    setSelectedSeatIds((prev) => {
+      const next = new Set(prev)
+      let changed = false
+      for (const seat of flat) {
+        const takenByOther = seat.status === 'sold' || (seat.status === 'locked' && !seat.locked_by_me)
+        if (next.has(seat.id) && takenByOther) {
+          next.delete(seat.id)
+          changed = true
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [seatMap])
+
   const currentSection = useMemo(
     () => seatMap?.sections.find((s) => s.section_id === selectedSectionId),
     [seatMap, selectedSectionId]
@@ -98,48 +106,79 @@ function SeatMap() {
     [seatMap]
   )
 
-  const lockedByMeSeats = useMemo(
-    () => allSeats.filter((s) => s.locked_by_me),
-    [allSeats]
+  const selectedSeats = useMemo(
+    () => allSeats.filter((s) => selectedSeatIds.has(s.id)),
+    [allSeats, selectedSeatIds]
   )
-
-  const lockExpiresAt = useMemo(() => {
-    const seat = lockedByMeSeats.find((s) => s.lock_expires_at)
-    return seat ? toUtcMs(seat.lock_expires_at) : null
-  }, [lockedByMeSeats])
 
   const totalAmount = useMemo(
-    () => lockedByMeSeats.reduce((sum, s) => sum + (s.price || 0), 0),
-    [lockedByMeSeats]
+    () => selectedSeats.reduce((sum, s) => sum + (s.price || 0), 0),
+    [selectedSeats]
   )
 
+  // Toggle seat selection.
+  // - available seat → add to selection (no API call)
+  // - selected available seat → remove from selection (no API call)
+  // - locked_by_me seat → clicking deselects AND calls unlock to release the DB hold
   const handleSeatClick = async (seat) => {
     if (locking) return
-    if (seat.locked_by_me) {
-      // Unlock
-      try {
-        await seatsApi.unlock(seat.id)
-        patchSeat(seat.id, { status: 'available', locked_by_me: false, lock_expires_at: null })
-      } catch (e) {
-        setError(e.message)
+    // Blocked: sold, or locked by someone else
+    if (seat.status === 'sold' || (seat.status === 'locked' && !seat.locked_by_me)) return
+
+    if (selectedSeatIds.has(seat.id)) {
+      // Deselecting — if the seat was locked by this user in the DB, release the hold
+      if (seat.locked_by_me) {
+        try {
+          await seatsApi.unlock(seat.id)
+          patchSeat(seat.id, { status: 'available', locked_by_me: false })
+        } catch (e) {
+          setError(e.message)
+          return
+        }
       }
-      return
+      setSelectedSeatIds((prev) => { const n = new Set(prev); n.delete(seat.id); return n })
+    } else {
+      setSelectedSeatIds((prev) => { const n = new Set(prev); n.add(seat.id); return n })
     }
-    if (seat.status !== 'available') return
+    setError('')
+  }
+
+  // Lock all selected seats (skipping any already locked by this user) then navigate to checkout
+  const handleProceedToPayment = async () => {
+    if (selectedSeatIds.size === 0) return
     setLocking(true)
     setError('')
     try {
-      const result = await seatsApi.lock([seat.id])
-      if (result.success?.includes(seat.id)) {
-        patchSeat(seat.id, {
-          status: 'locked',
-          locked_by_me: true,
-          lock_expires_at: result.lock_expires_at ?? null,
-        })
-      } else {
-        setError(`Ghế ${seat.label} vừa bị người khác giữ.`)
-        patchSeat(seat.id, { status: 'locked', locked_by_me: false })
+      // Split: seats already mine in DB (no re-lock needed) vs. seats to lock now
+      const alreadyMine = allSeats.filter((s) => selectedSeatIds.has(s.id) && s.locked_by_me).map((s) => s.id)
+      const needLocking  = allSeats.filter((s) => selectedSeatIds.has(s.id) && !s.locked_by_me).map((s) => s.id)
+
+      let finalIds = [...alreadyMine]
+
+      if (needLocking.length) {
+        const result = await seatsApi.lock(needLocking)
+        if (result.failed?.length) {
+          // Roll back any seats that were locked in this call
+          if (result.success?.length) {
+            await Promise.all(result.success.map((id) => seatsApi.unlock(id)))
+          }
+          const takenLabels = allSeats
+            .filter((s) => result.failed.includes(s.id))
+            .map((s) => s.label)
+            .join(', ')
+          setError(`Ghế ${takenLabels} vừa bị người khác giữ. Vui lòng chọn ghế khác.`)
+          setSelectedSeatIds((prev) => {
+            const next = new Set(prev)
+            result.failed.forEach((id) => next.delete(id))
+            return next
+          })
+          await fetchSeatMap()
+          return
+        }
+        finalIds = [...finalIds, ...result.success]
       }
+
+      navigate('/checkout', { state: { seatIds: finalIds, eventTitle: event?.title } })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -147,12 +186,9 @@ function SeatMap() {
     }
   }
 
-  const bg    = isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
-  const card  = isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'
-  const sub   = isDark ? 'text-slate-400' : 'text-slate-600'
-  const inputCls = isDark
-    ? 'border-white/10 bg-slate-800 text-white'
-    : 'border-slate-200 bg-white text-slate-900'
+  const bg   = isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
+  const card = isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'
+  const sub  = isDark ? 'text-slate-400' : 'text-slate-600'
 
   if (loading) {
     return <div className={`py-16 text-center ${sub}`}>Đang tải sơ đồ ghế...</div>
@@ -169,8 +205,6 @@ function SeatMap() {
       </div>
     )
   }
-
-  const lockRemainingMs = lockExpiresAt ? lockExpiresAt - now : 0
 
   return (
     <div className={bg}>
@@ -216,12 +250,12 @@ function SeatMap() {
             {/* Legend */}
             <div className="mb-4 flex flex-wrap gap-3 text-xs">
               <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-emerald-400">Còn trống</span>
+              <span className="rounded-full bg-sky-500/20 px-2.5 py-1 text-sky-400">Đã chọn</span>
               <span className="rounded-full bg-amber-400/20 px-2.5 py-1 text-amber-400">Đang giữ</span>
               <span className="rounded-full bg-rose-500/20 px-2.5 py-1 text-rose-400">Đã bán</span>
-              <span className="rounded-full bg-sky-500/20 px-2.5 py-1 text-sky-400">Ghế của bạn</span>
             </div>
 
-            {/* Screen indicator */}
+            {/* Stage indicator */}
             <div className={`mb-5 rounded-xl px-4 py-2 text-center text-xs uppercase tracking-widest ${isDark ? 'bg-white/5 text-slate-500' : 'bg-slate-100 text-slate-500'}`}>
               ── SÂN KHẤU ──
             </div>
@@ -233,12 +267,15 @@ function SeatMap() {
                 style={{ gridTemplateColumns: `repeat(${currentSection.cols}, minmax(0, 1fr))` }}
               >
                 {currentSection.seats.map((seat) => {
-                  const displayStatus = seat.locked_by_me ? 'locked_by_me' : seat.status
+                  const isSelected = selectedSeatIds.has(seat.id)
+                  const displayStatus = isSelected ? 'selected' : seat.status
+                  // Allow clicking: available seats + seats locked by this user (to deselect/release)
+                  const isDisabled = locking || seat.status === 'sold' || (seat.status === 'locked' && !seat.locked_by_me)
                   return (
                     <button
                       key={seat.id}
                       onClick={() => handleSeatClick(seat)}
-                      disabled={locking || displayStatus === 'sold' || displayStatus === 'locked'}
+                      disabled={isDisabled}
                       title={`${seat.label} · ${(seat.price || 0).toLocaleString()} VND`}
                       className={`min-w-0 rounded px-1 py-1.5 text-[8px] font-medium leading-none transition disabled:cursor-not-allowed ${STATUS_STYLE[displayStatus] || STATUS_STYLE.available}`}
                     >
@@ -254,26 +291,20 @@ function SeatMap() {
           <aside className={`space-y-4 rounded-3xl border p-5 ${card}`}>
             <div>
               <h2 className="text-xl font-semibold">Ghế đã chọn</h2>
-              <p className={`text-sm ${sub}`}>Nhấn ghế để giữ chỗ (tối đa 5 ghế, 10 phút).</p>
+              <p className={`text-sm ${sub}`}>Ghế sẽ được giữ khi bạn nhấn tiến hành thanh toán.</p>
             </div>
 
-            {lockExpiresAt && lockRemainingMs > 0 && (
-              <div className={`rounded-2xl border p-3 text-sm ${isDark ? 'border-amber-400/20 bg-amber-400/10' : 'border-amber-200 bg-amber-50'}`}>
-                <p className={`text-xs ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>Thời gian giữ chỗ</p>
-                <p className={`mt-1 text-2xl font-semibold tabular-nums ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
-                  {formatDuration(lockRemainingMs)}
-                </p>
-              </div>
-            )}
-
             <div className="space-y-2">
-              {lockedByMeSeats.length === 0 ? (
+              {selectedSeats.length === 0 ? (
                 <div className={`rounded-2xl border border-dashed p-4 text-center text-sm ${isDark ? 'border-white/10 text-slate-500' : 'border-slate-200 text-slate-400'}`}>
                   Chưa chọn ghế nào.
                 </div>
               ) : (
-                lockedByMeSeats.map((seat) => (
-                  <div key={seat.id} className={`flex items-center justify-between rounded-xl border p-3 text-sm ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50'}`}>
+                selectedSeats.map((seat) => (
+                  <div
+                    key={seat.id}
+                    className={`flex items-center justify-between rounded-xl border p-3 text-sm ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50'}`}
+                  >
                     <span className="font-medium">{seat.label}</span>
                     <span className={sub}>{(seat.price || 0).toLocaleString()} VND</span>
                   </div>
@@ -281,7 +312,7 @@ function SeatMap() {
               )}
             </div>
 
-            {lockedByMeSeats.length > 0 && (
+            {selectedSeats.length > 0 && (
               <div className={`rounded-2xl p-3 ${isDark ? 'bg-sky-500/10' : 'bg-sky-50'}`}>
                 <p className={`text-xs ${sub}`}>Tổng cộng</p>
                 <p className={`text-2xl font-semibold ${isDark ? 'text-sky-400' : 'text-sky-700'}`}>
@@ -291,11 +322,11 @@ function SeatMap() {
             )}
 
             <button
-              onClick={() => navigate('/checkout', { state: { seatIds: lockedByMeSeats.map((s) => s.id), eventTitle: event?.title } })}
-              disabled={lockedByMeSeats.length === 0}
+              onClick={handleProceedToPayment}
+              disabled={selectedSeats.length === 0 || locking}
               className="w-full rounded-full bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Tiến hành thanh toán ({lockedByMeSeats.length})
+              {locking ? 'Đang xử lý...' : `Tiến hành thanh toán (${selectedSeats.length})`}
             </button>
           </aside>
         </div>

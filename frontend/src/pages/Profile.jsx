@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext.jsx'
 
 function Profile() {
   const navigate = useNavigate()
-  const { user, authLoading, logout } = useAuth()
+  const { user, authLoading, logout, updateUser } = useAuth()
   const { isDark } = useTheme()
 
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', dob: '', gender: '' })
@@ -44,8 +44,7 @@ function Profile() {
         dob:       form.dob.trim()       || undefined,
         gender:    form.gender           || undefined,
       })
-      // Sync updated user into localStorage so Header reflects change
-      localStorage.setItem('ticketrush_user', JSON.stringify(updated))
+      updateUser(updated)
       setSuccess('Cập nhật thông tin thành công.')
     } catch (e) {
       setError(e.message)

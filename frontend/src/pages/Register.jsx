@@ -91,11 +91,18 @@ function Register() {
     setLoading(true)
 
     try {
+      // Convert YYYY-MM-DD (from date input) to dd/mm/yyyy (expected by backend)
+      let dob = formData.dob
+      if (dob && /^\d{4}-\d{2}-\d{2}$/.test(dob)) {
+        const [y, m, d] = dob.split('-')
+        dob = `${d}/${m}/${y}`
+      }
+
       await register({
         full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone,
-        dob: formData.dob,
+        dob,
         gender: formData.gender,
         username: formData.username,
         password: formData.password,

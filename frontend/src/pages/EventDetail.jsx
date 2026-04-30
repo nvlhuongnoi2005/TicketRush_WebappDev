@@ -3,11 +3,14 @@ import { Link, useParams } from 'react-router-dom'
 import { eventsApi } from '../lib/api'
 import { useTheme } from '../context/ThemeContext.jsx'
 
+const DESC_LIMIT = 220
+
 function EventDetail() {
   const { isDark } = useTheme()
   const { eventId } = useParams()
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [descExpanded, setDescExpanded] = useState(false)
 
   useEffect(() => {
     eventsApi.get(eventId)
@@ -60,22 +63,40 @@ function EventDetail() {
               <p>{new Date(event.event_date).toLocaleString()}</p>
               {event.venue_name && <p>{event.venue_name}</p>}
               {event.venue_address && <p>{event.venue_address}</p>}
-              {event.description && <p>{event.description}</p>}
+              {event.description && (() => {
+                const isLong = event.description.length > DESC_LIMIT
+                const shown = isLong && !descExpanded
+                  ? event.description.slice(0, DESC_LIMIT) + '…'
+                  : event.description
+                return (
+                  <div>
+                    <p>{shown}</p>
+                    {isLong && (
+                      <button
+                        onClick={() => setDescExpanded((v) => !v)}
+                        className="mt-1 text-sm text-sky-400 transition hover:text-sky-300"
+                      >
+                        {descExpanded ? 'Thu gọn' : 'Xem thêm'}
+                      </button>
+                    )}
+                  </div>
+                )
+              })()}
             </div>
             {event.sections && event.sections.length > 0 && (
               <div className="grid gap-3 sm:grid-cols-2">
                 {event.sections.map((section) => (
-                  <div key={section.id} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                  <div key={section.id} className={`rounded-2xl border p-4 ${isDark ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-slate-100'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-lg font-semibold" style={{ color: section.color }}>
                         {section.name}
                       </h2>
-                      <span className="text-xs text-slate-400">{section.available_seats} left</span>
+                      <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{section.available_seats} left</span>
                     </div>
-                    <p className="mt-2 text-sm text-slate-300">
+                    <p className={`mt-2 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                       {section.rows} rows × {section.cols} seats
                     </p>
-                    <p className="mt-1 text-sm font-medium text-white">{section.price.toLocaleString()} VND</p>
+                    <p className={`mt-1 text-sm font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>{section.price.toLocaleString()} VND</p>
                   </div>
                 ))}
               </div>
