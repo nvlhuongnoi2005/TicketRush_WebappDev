@@ -17,8 +17,15 @@ from core.config import settings
 
 
 def _send(to: str, subject: str, html: str) -> None:
-    """Gửi email qua SMTP/TLS. Raise nếu SMTP chưa cấu hình."""
+    """Gửi email qua SMTP/TLS. Ở dev mode log ra console nếu SMTP chưa cấu hình."""
     if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
+        if settings.APP_ENV == "development":
+            print(f"\n{'='*60}")
+            print(f"[DEV EMAIL] To: {to}")
+            print(f"[DEV EMAIL] Subject: {subject}")
+            print(f"[DEV EMAIL] (SMTP not configured — email logged only)")
+            print(f"{'='*60}\n")
+            return
         raise RuntimeError(
             "Email chưa được cấu hình. Thêm SMTP_USER và SMTP_PASSWORD vào backend/.env"
         )

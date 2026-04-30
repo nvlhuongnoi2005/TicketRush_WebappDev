@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
+  const successMessage = location.state?.message || ''
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -32,6 +34,12 @@ function Login() {
             <h1 className="mb-2 text-3xl font-bold text-slate-900">TicketRush</h1>
             <p className="text-sm text-slate-600">Sign in to your account</p>
           </div>
+
+          {successMessage && (
+            <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-sm text-emerald-700">{successMessage}</p>
+            </div>
+          )}
 
           {error && (
             <div className="mb-6 rounded-lg border border-rose-200 bg-rose-50 p-4">

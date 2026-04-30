@@ -5,6 +5,7 @@ import { authApi } from '../lib/api'
 function ForgotPassword() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
+  const [devResetUrl, setDevResetUrl] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -13,7 +14,8 @@ function ForgotPassword() {
     setError('')
     setLoading(true)
     try {
-      await authApi.forgotPassword({ email })
+      const res = await authApi.forgotPassword({ email })
+      if (res?.dev_reset_url) setDevResetUrl(res.dev_reset_url)
       setSent(true)
     } catch (err) {
       setError(err.message)
@@ -46,10 +48,23 @@ function ForgotPassword() {
                   chúng tôi đã gửi link đặt lại mật khẩu. Link có hiệu lực trong 30 phút.
                 </p>
               </div>
+              {devResetUrl && (
+                <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-left">
+                  <p className="mb-2 text-xs font-semibold text-yellow-400 uppercase tracking-wider">
+                    DEV MODE — Reset link (SMTP not configured)
+                  </p>
+                  <a
+                    href={devResetUrl}
+                    className="break-all text-xs text-cyan-400 underline underline-offset-2 hover:text-cyan-300"
+                  >
+                    {devResetUrl}
+                  </a>
+                </div>
+              )}
               <p className="text-xs text-slate-500">
                 Không thấy email? Kiểm tra thư mục Spam hoặc{' '}
                 <button
-                  onClick={() => { setSent(false); setEmail('') }}
+                  onClick={() => { setSent(false); setEmail(''); setDevResetUrl('') }}
                   className="text-cyan-400 underline-offset-2 hover:underline"
                 >
                   thử lại

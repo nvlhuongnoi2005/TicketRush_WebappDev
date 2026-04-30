@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from core.deps import get_current_user
 from core.security import hash_password, verify_password, create_access_token
+from core.config import settings
 from models.user import User, UserRole
 from schemas.user import UserRegister, UserLogin, UserUpdate, UserOut, TokenOut, ForgotPasswordRequest, ResetPasswordRequest
 from services.email_service import send_reset_password_email
@@ -92,7 +93,6 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
             reset_token=token,
         )
     except Exception as exc:
-        # Rollback token nếu gửi mail thất bại
         user.reset_token = None
         user.reset_token_expires_at = None
         db.commit()
@@ -101,7 +101,10 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)):
             detail=f"Không thể gửi email: {exc}. Kiểm tra cấu hình SMTP trong backend/.env",
         )
 
-    return {"message": "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được hướng dẫn trong vài phút."}
+    response = {"message": "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được hướng dẫn trong vài phút."}
+    if settings.APP_ENV == "development":
+        response["dev_reset_url"] = f"{settings.FRONTEND_URL}/reset-password/{token}"
+    return response
 
 
 @router.post("/reset-password")
