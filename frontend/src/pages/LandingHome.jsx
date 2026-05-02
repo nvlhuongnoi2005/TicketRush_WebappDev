@@ -66,6 +66,24 @@ function Input({ label, optional, hint, right, error, ...props }) {
     )
 }
 
+function Ticker({ top = false }) {
+    return (
+        <div className={`absolute left-0 right-0 z-20 overflow-hidden bg-slate-900/80 py-3.5 border-y border-slate-800 backdrop-blur-md ${top ? 'top-0' : 'bottom-0'}`}>
+            <div className="ticker-track flex w-max gap-8">
+                {[...TICKER_ITEMS, ...TICKER_ITEMS].map((t, i) => (
+                    <span
+                        key={i}
+                        className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400"
+                    >
+                        <span className="h-1 w-1 rounded-full bg-sky-500" />
+                        {t}
+                    </span>
+                ))}
+            </div>
+        </div>
+    )
+}
+
 // ─── Auth Dialog ───────────────────────────────────────────────────────────────
 const CONCERT_IMG = 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80'
 const FESTIVAL_IMG = 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=600&q=80'
@@ -481,6 +499,9 @@ export default function LandingHome() {
 
                 {/* ══ HERO ══ */}
                 <section className="relative flex min-h-screen items-center overflow-hidden">
+                    <Ticker top />
+                    <Ticker />
+
                     {/* bg image */}
                     <div className="absolute inset-0">
                         <img src={HERO_BG} alt="" className="h-full w-full object-cover" />
@@ -592,18 +613,6 @@ export default function LandingHome() {
                         </div>
                     </div>
                 </section>
-
-                {/* ══ TICKER ══ */}
-                <div className="overflow-hidden bg-slate-900 py-3.5 border-y border-slate-800">
-                    <div className="ticker-track flex w-max gap-8">
-                        {[...TICKER_ITEMS, ...TICKER_ITEMS].map((t, i) => (
-                            <span key={i} className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                <span className="h-1 w-1 rounded-full bg-sky-500" />
-                                {t}
-                            </span>
-                        ))}
-                    </div>
-                </div>
 
                 {/* ══ PHOTO GRID ══ */}
                 <section className="mx-auto max-w-7xl px-6 py-20 md:px-10">
