@@ -51,7 +51,7 @@ function ForgotPassword() {
               {devResetUrl && (
                 <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-left">
                   <p className="mb-2 text-xs font-semibold text-yellow-400 uppercase tracking-wider">
-                    DEV MODE — Reset link (SMTP not configured)
+                    DEV MODE - Reset link (SMTP not configured)
                   </p>
                   <a
                     href={devResetUrl}

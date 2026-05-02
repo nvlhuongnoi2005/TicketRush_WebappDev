@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
     SMTP_FROM: str = "TicketRush <no-reply@ticketrush.vn>"
 
-    # Frontend URL — dùng để tạo link reset password trong email
+    # Frontend URL - dùng để tạo link reset password trong email
     FRONTEND_URL: str = "http://localhost:5173"
 
     class Config:

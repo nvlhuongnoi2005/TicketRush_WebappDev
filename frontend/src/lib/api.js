@@ -28,7 +28,7 @@ async function request(method, path, data) {
     const msg = json?.detail || `Request failed (${res.status})`
     let errMsg
     if (Array.isArray(msg)) {
-      errMsg = msg.map((e) => `${e.loc?.slice(1).join('.')} — ${e.msg}`).join('; ')
+      errMsg = msg.map((e) => `${e.loc?.slice(1).join('.')} - ${e.msg}`).join('; ')
     } else if (msg && typeof msg === 'object') {
       errMsg = msg.message || JSON.stringify(msg)
     } else {

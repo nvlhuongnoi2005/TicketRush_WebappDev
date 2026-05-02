@@ -1,5 +1,5 @@
 """
-Email service — gửi mail qua SMTP (Gmail hoặc bất kỳ provider nào).
+Email service - gửi mail qua SMTP (Gmail hoặc bất kỳ provider nào).
 
 Cấu hình trong backend/.env:
   SMTP_HOST=smtp.gmail.com
@@ -23,7 +23,7 @@ def _send(to: str, subject: str, html: str) -> None:
             print(f"\n{'='*60}")
             print(f"[DEV EMAIL] To: {to}")
             print(f"[DEV EMAIL] Subject: {subject}")
-            print(f"[DEV EMAIL] (SMTP not configured — email logged only)")
+            print(f"[DEV EMAIL] (SMTP not configured - email logged only)")
             print(f"{'='*60}\n")
             return
         raise RuntimeError(
@@ -45,7 +45,7 @@ def _send(to: str, subject: str, html: str) -> None:
 
 def send_reset_password_email(to: str, full_name: str, reset_token: str) -> None:
     reset_url = f"{settings.FRONTEND_URL}/reset-password/{reset_token}"
-    subject = "TicketRush — Đặt lại mật khẩu của bạn"
+    subject = "TicketRush - Đặt lại mật khẩu của bạn"
     html = f"""
 <!DOCTYPE html>
 <html lang="vi">
@@ -90,7 +90,7 @@ def send_reset_password_email(to: str, full_name: str, reset_token: str) -> None
             </p>
             <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6">
               Link có hiệu lực trong <strong style="color:#94a3b8">30 phút</strong>.
-              Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này — tài khoản của bạn vẫn an toàn.
+              Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này - tài khoản của bạn vẫn an toàn.
             </p>
           </td>
         </tr>

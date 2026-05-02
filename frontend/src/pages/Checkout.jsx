@@ -22,7 +22,7 @@ function Checkout() {
   const { isDark } = useTheme()
 
   // State passed from SeatMap
-  const seatIds   = location.state?.seatIds   ?? []
+  const seatIds = location.state?.seatIds ?? []
   const eventTitle = location.state?.eventTitle ?? ''
 
   const [order, setOrder] = useState(null)
@@ -55,7 +55,7 @@ function Checkout() {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         keepalive: true,
-      }).catch(() => {})
+      }).catch(() => { })
     }
   }, [])
 
@@ -90,7 +90,7 @@ function Checkout() {
       .finally(() => setLoading(false))
   }, [user, authLoading, seatIds.join(',')])
 
-  // Lock expiry countdown — redirect back if expired
+  // Lock expiry countdown - redirect back if expired
   const expiresMs = toUtcMs(order?.expires_at)
   const remaining = expiresMs ? expiresMs - now : null
 
@@ -115,9 +115,9 @@ function Checkout() {
     }
   }
 
-  const bg   = isDark ? 'bg-slate-950 text-white'  : 'bg-slate-50 text-slate-900'
+  const bg = isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
   const card = isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'
-  const sub  = isDark ? 'text-slate-400' : 'text-slate-600'
+  const sub = isDark ? 'text-slate-400' : 'text-slate-600'
   const inner = isDark ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-slate-50'
 
   if (loading) {
@@ -142,7 +142,7 @@ function Checkout() {
             >
               Xem vé của tôi
             </button>
-            <Link to="/" className={`rounded-full border px-5 py-3 text-sm font-medium ${isDark ? 'border-white/10 text-slate-300 hover:bg-white/10' : 'border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
+            <Link to="/home" className={`rounded-full border px-5 py-3 text-sm font-medium ${isDark ? 'border-white/10 text-slate-300 hover:bg-white/10' : 'border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
               Về trang chủ
             </Link>
           </div>

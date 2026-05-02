@@ -130,7 +130,7 @@ function AdminEvents() {
         )}
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-          {/* Edit form — only shown when editing */}
+          {/* Edit form - only shown when editing */}
           {editingId && (
             <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg">
               <div className="mb-4 flex items-center justify-between">
@@ -227,7 +227,7 @@ function AdminEvents() {
                         </td>
                         <td className="px-4 py-4 align-top capitalize text-slate-600">{ev.status}</td>
                         <td className="px-4 py-4 align-top text-slate-600">
-                          {ev.event_date ? new Date(ev.event_date).toLocaleDateString('vi-VN') : '—'}
+                          {ev.event_date ? new Date(ev.event_date).toLocaleDateString('vi-VN') : '-'}
                         </td>
                         <td className="px-4 py-4 align-top">
                           <div className="flex flex-wrap gap-2">

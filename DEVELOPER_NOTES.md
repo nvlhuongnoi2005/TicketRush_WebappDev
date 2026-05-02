@@ -1,4 +1,4 @@
-# TicketRush — Developer Notes
+# TicketRush - Developer Notes
 
 A reference for backend and frontend developers covering architecture, key functions, bugs fixed, and known issues.
 
@@ -49,7 +49,7 @@ Default accounts seeded on first startup:
 
 ---
 
-## Backend — Key Functions
+## Backend - Key Functions
 
 ### `backend/services/seat_service.py`
 
@@ -57,8 +57,8 @@ Default accounts seeded on first startup:
 Locks a list of seats for a user. Each seat is processed in an independent transaction so one failure doesn't roll back the whole batch. Returns `(success_ids, failed_ids)`.
 
 Concurrency strategy:
-- **SQLite (dev):** `threading.Lock()` — only one thread writes at a time.
-- **PostgreSQL (prod):** `SELECT ... FOR UPDATE NOWAIT` — database enforces row-level locking; concurrent requests get an `OperationalError` and are added to `failed_ids`.
+- **SQLite (dev):** `threading.Lock()` - only one thread writes at a time.
+- **PostgreSQL (prod):** `SELECT ... FOR UPDATE NOWAIT` - database enforces row-level locking; concurrent requests get an `OperationalError` and are added to `failed_ids`.
 
 **`release_expired_seats(db)`**  
 Called by the scheduler every 30 s. Resets any `locked` seat whose `lock_expires_at` is in the past back to `available`.
@@ -81,7 +81,7 @@ Marks each seat as `sold`, generates QR tickets, and sets the order status to `p
 Idempotent by `session_id`. If the user's token has expired, re-queues them at the end.
 
 **`admit_next_batch(db, event_id)`**  
-Admits the next `QUEUE_BATCH_SIZE` (default: 50) users in line. Each gets a `secrets.token_urlsafe(32)` access token valid for 20 minutes. Called by the scheduler **and** immediately on every `join` and `status` poll — this ensures position-1 users are admitted within seconds, not up to 30 s.
+Admits the next `QUEUE_BATCH_SIZE` (default: 50) users in line. Each gets a `secrets.token_urlsafe(32)` access token valid for 20 minutes. Called by the scheduler **and** immediately on every `join` and `status` poll - this ensures position-1 users are admitted within seconds, not up to 30 s.
 
 **`verify_queue_token(db, event_id, token)`**  
 Called before the seat map is shown. Checks the token exists, belongs to an admitted entry, and hasn't expired.
@@ -112,7 +112,7 @@ Broadcasts seat status to all connected clients for a given event every 1 second
 
 ---
 
-### `backend/core/config.py` — Tunable settings
+### `backend/core/config.py` - Tunable settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -144,7 +144,7 @@ TicketRush/
 
 ---
 
-## Frontend — Key Functions
+## Frontend - Key Functions
 
 ### `src/lib/api.js`
 
@@ -152,7 +152,7 @@ Single `request(method, path, data)` wrapper. Automatically attaches the JWT fro
 
 ```js
 if (Array.isArray(msg)) {
-  errMsg = msg.map((e) => `${e.loc?.slice(1).join('.')} — ${e.msg}`).join('; ')
+  errMsg = msg.map((e) => `${e.loc?.slice(1).join('.')} - ${e.msg}`).join('; ')
 }
 ```
 
@@ -163,16 +163,16 @@ if (Array.isArray(msg)) {
 Manages virtual-queue access tokens across all pages. Tokens survive page refresh via `sessionStorage` (cleared when the browser tab closes).
 
 Key functions:
-- `hasAccessToken(eventId)` — returns `true` if a valid non-expired token exists.
-- `storeAccessToken(eventId, token, expiresAt)` — normalizes the `expiresAt` string (see UTC bug below) and saves to state + sessionStorage.
-- `clearAccessToken(eventId)` — called when the token expires on the seat map.
-- `loadStoredTokens()` — migrates any previously stored entries that are missing the `'Z'` UTC suffix.
+- `hasAccessToken(eventId)` - returns `true` if a valid non-expired token exists.
+- `storeAccessToken(eventId, token, expiresAt)` - normalizes the `expiresAt` string (see UTC bug below) and saves to state + sessionStorage.
+- `clearAccessToken(eventId)` - called when the token expires on the seat map.
+- `loadStoredTokens()` - migrates any previously stored entries that are missing the `'Z'` UTC suffix.
 
 ---
 
 ### `src/pages/SeatMap.jsx`
 
-**`parseUTCMs(s)`** — helper at the top of the file. Appends `'Z'` to naive UTC datetime strings from the backend before parsing, ensuring correct millisecond timestamps regardless of the client's timezone.
+**`parseUTCMs(s)`** - helper at the top of the file. Appends `'Z'` to naive UTC datetime strings from the backend before parsing, ensuring correct millisecond timestamps regardless of the client's timezone.
 
 ```js
 function parseUTCMs(s) {
@@ -182,18 +182,18 @@ function parseUTCMs(s) {
 }
 ```
 
-**WebSocket effect** — subscribes to `/ws/events/{eventId}/seats` and patches the seat grid in real time without a full reload.
+**WebSocket effect** - subscribes to `/ws/events/{eventId}/seats` and patches the seat grid in real time without a full reload.
 
-**Lock-expiry effect** — schedules a `setTimeout` based on `lockExpiresAt` to clear the local selection when the hold expires.
+**Lock-expiry effect** - schedules a `setTimeout` based on `lockExpiresAt` to clear the local selection when the hold expires.
 
-**Queue-expiry effect** — schedules a redirect back to the waiting room when the queue access token expires.
+**Queue-expiry effect** - schedules a redirect back to the waiting room when the queue access token expires.
 
 ---
 
 ### `src/pages/WaitingRoom.jsx`
 
 On mount, immediately redirects to the seat map if a valid token already exists (handles page refresh case). Otherwise:
-1. `POST /api/queue/{eventId}/join` — joins or re-joins the queue.
+1. `POST /api/queue/{eventId}/join` - joins or re-joins the queue.
 2. Polls `GET /api/queue/{eventId}/status` every 2 s.
 3. On `is_admitted`, stores the token and navigates to the seat map.
 
@@ -201,7 +201,7 @@ On mount, immediately redirects to the seat map if a valid token already exists 
 
 ### `src/pages/Checkout.jsx`
 
-**No `useEffect`** — all side-effects are triggered by button clicks only.  
+**No `useEffect`** - all side-effects are triggered by button clicks only.  
 **Two-step flow:** "Place order" button → QR code appears → "Confirm payment" button.
 
 `placingRef` (a `useRef`) prevents duplicate order creation on rapid clicks or React's double-invocation in development:
@@ -215,7 +215,7 @@ const handlePlaceOrder = async () => {
 }
 ```
 
-Auth guard is done synchronously at render time (`if (!user) { navigate(...); return null }`) rather than inside an effect — avoids the order-creation effect running before the redirect fires.
+Auth guard is done synchronously at render time (`if (!user) { navigate(...); return null }`) rather than inside an effect - avoids the order-creation effect running before the redirect fires.
 
 ---
 
@@ -225,7 +225,7 @@ Auth guard is done synchronously at render time (`if (!user) { navigate(...); re
 
 **Symptom:** Selected seat appeared briefly then disappeared. The app sometimes redirected back to the waiting room on seat click.
 
-**Root cause:** Python's `datetime.utcnow()` returns a *naive* datetime with no timezone info. SQLAlchemy serializes it as `"2024-01-01T12:00:00"` (no `'Z'`). JavaScript's `new Date("2024-01-01T12:00:00")` treats this as **local time** (UTC+7 adds 7 hours), making `lock_expires_at` appear to be in the future by +7 h when it should be, and vice-versa for values near "now" — the lock would look already expired, triggering immediate seat release. Similarly, queue tokens appeared expired on arrival, causing the waiting-room redirect.
+**Root cause:** Python's `datetime.utcnow()` returns a *naive* datetime with no timezone info. SQLAlchemy serializes it as `"2024-01-01T12:00:00"` (no `'Z'`). JavaScript's `new Date("2024-01-01T12:00:00")` treats this as **local time** (UTC+7 adds 7 hours), making `lock_expires_at` appear to be in the future by +7 h when it should be, and vice-versa for values near "now" - the lock would look already expired, triggering immediate seat release. Similarly, queue tokens appeared expired on arrival, causing the waiting-room redirect.
 
 **Fix:** Append `'Z'` to any datetime string that lacks a timezone indicator before parsing.
 - `parseUTCMs()` in `SeatMap.jsx`
@@ -239,7 +239,7 @@ Auth guard is done synchronously at render time (`if (!user) { navigate(...); re
 
 **Root cause:** `OrderCreate` Pydantic schema had `event_id: int` (required), but the frontend wasn't sending it.
 
-**Fix:** Changed to `event_id: Optional[int] = None` in `backend/schemas/order.py`. The service layer doesn't use `event_id` — it's derived from the seats — so making it optional is correct.
+**Fix:** Changed to `event_id: Optional[int] = None` in `backend/schemas/order.py`. The service layer doesn't use `event_id` - it's derived from the seats - so making it optional is correct.
 
 ---
 
@@ -247,7 +247,7 @@ Auth guard is done synchronously at render time (`if (!user) { navigate(...); re
 
 **Symptom:** The `/checkout` page triggered an infinite loop of order creation. Each reload created a new order; the counter grew unbounded.
 
-**Root cause:** React 18 `StrictMode` deliberately double-invokes `useEffect` in development to surface side-effect bugs. The previous implementation placed `ordersApi.create()` inside a `useEffect`, so it ran twice per mount. A `useRef` guard blocked the second run, but when StrictMode simulated an unmount/remount, state (including `loading`) reset while the ref didn't — leaving the UI stuck. The backend also lacked idempotency, so each call created a new order.
+**Root cause:** React 18 `StrictMode` deliberately double-invokes `useEffect` in development to surface side-effect bugs. The previous implementation placed `ordersApi.create()` inside a `useEffect`, so it ran twice per mount. A `useRef` guard blocked the second run, but when StrictMode simulated an unmount/remount, state (including `loading`) reset while the ref didn't - leaving the UI stuck. The backend also lacked idempotency, so each call created a new order.
 
 **Fix (frontend):** Removed `useEffect` entirely. The order is created only when the user explicitly clicks "Place order". `placingRef` guards against rapid double-clicks.
 
@@ -271,16 +271,16 @@ Auth guard is done synchronously at render time (`if (!user) { navigate(...); re
 
 - **SQLite is not suitable for production.** The `threading.Lock()` in `seat_service.py` protects against concurrent writes in a single-process dev server but will not work across multiple workers or machines. Switch to PostgreSQL and the `SELECT FOR UPDATE NOWAIT` path is already implemented.
 
-- **`allow_origins=["*"]` in CORS** — acceptable for development but must be restricted to your actual frontend domain before going to production.
+- **`allow_origins=["*"]` in CORS** - acceptable for development but must be restricted to your actual frontend domain before going to production.
 
-- **`SECRET_KEY` default value** — must be changed via the `.env` file before deployment. Any JWT signed with the default key can be forged.
+- **`SECRET_KEY` default value** - must be changed via the `.env` file before deployment. Any JWT signed with the default key can be forged.
 
-- **Queue token storage in `sessionStorage`** — tokens are lost when the browser tab is closed. This is intentional (security) but means a user who closes the tab must re-queue. Consider whether this UX is acceptable.
+- **Queue token storage in `sessionStorage`** - tokens are lost when the browser tab is closed. This is intentional (security) but means a user who closes the tab must re-queue. Consider whether this UX is acceptable.
 
-- **QR code images stored as base64 in the database** — works for a prototype but will inflate the database quickly at scale. Move to file storage (S3 or local disk) for production.
+- **QR code images stored as base64 in the database** - works for a prototype but will inflate the database quickly at scale. Move to file storage (S3 or local disk) for production.
 
-- **No payment verification** — the current flow shows a bank-transfer QR and lets the user self-confirm payment. In production you need a webhook from your payment provider to confirm before issuing tickets.
+- **No payment verification** - the current flow shows a bank-transfer QR and lets the user self-confirm payment. In production you need a webhook from your payment provider to confirm before issuing tickets.
 
-- **Debug `console.log` statements** remain in `SeatMap.jsx` inside the `toggleSeat` function — remove before shipping.
+- **Debug `console.log` statements** remain in `SeatMap.jsx` inside the `toggleSeat` function - remove before shipping.
 
-- **Admin panel** is unprotected at the route level — any logged-in user who knows the URL can navigate to `/admin`. The API routes check `UserRole.admin`, but the frontend should redirect non-admins away.
+- **Admin panel** is unprotected at the route level - any logged-in user who knows the URL can navigate to `/admin`. The API routes check `UserRole.admin`, but the frontend should redirect non-admins away.

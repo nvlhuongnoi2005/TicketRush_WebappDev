@@ -30,7 +30,7 @@ SQLiteSession = sessionmaker(bind=sqlite_engine)
 # ── Kết nối PostgreSQL (đích) ─────────────────────────────────────────────────
 from core.config import settings
 from database import engine as pg_engine, Base
-from models import user, event, seat, order, ticket, queue  # noqa: F401 — register models
+from models import user, event, seat, order, ticket, queue  # noqa: F401 - register models
 from models.user import User
 from models.event import Event, SeatSection
 from models.seat import Seat

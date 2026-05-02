@@ -18,9 +18,9 @@ function formatCooldown(secs) {
 
 const STATUS_STYLE = {
   available: 'bg-emerald-500 hover:bg-emerald-400 cursor-pointer text-white',
-  selected:  'bg-sky-500 cursor-pointer text-white ring-2 ring-sky-300 ring-offset-1',
-  locked:    'bg-amber-400 cursor-not-allowed text-slate-950 opacity-70',
-  sold:      'bg-rose-500 cursor-not-allowed text-white opacity-50',
+  selected: 'bg-sky-500 cursor-pointer text-white ring-2 ring-sky-300 ring-offset-1',
+  locked: 'bg-amber-400 cursor-not-allowed text-slate-950 opacity-70',
+  sold: 'bg-rose-500 cursor-not-allowed text-white opacity-50',
 }
 
 function SeatMap() {
@@ -61,7 +61,7 @@ function SeatMap() {
     }
   }, [eventId])
 
-  // Initial load — also restores seats locked in a previous session (e.g. logout mid-checkout)
+  // Initial load - also restores seats locked in a previous session (e.g. logout mid-checkout)
   useEffect(() => {
     if (authLoading) return
     if (!user) { navigate('/login', { replace: true }); return }
@@ -150,7 +150,7 @@ function SeatMap() {
     if (seat.status === 'sold' || (seat.status === 'locked' && !seat.locked_by_me)) return
 
     if (selectedSeatIds.has(seat.id)) {
-      // Deselecting — if the seat was locked by this user in the DB, release the hold
+      // Deselecting - if the seat was locked by this user in the DB, release the hold
       if (seat.locked_by_me) {
         try {
           await seatsApi.unlock(seat.id)
@@ -175,7 +175,7 @@ function SeatMap() {
     try {
       // Split: seats already mine in DB (no re-lock needed) vs. seats to lock now
       const alreadyMine = allSeats.filter((s) => selectedSeatIds.has(s.id) && s.locked_by_me).map((s) => s.id)
-      const needLocking  = allSeats.filter((s) => selectedSeatIds.has(s.id) && !s.locked_by_me).map((s) => s.id)
+      const needLocking = allSeats.filter((s) => selectedSeatIds.has(s.id) && !s.locked_by_me).map((s) => s.id)
 
       let finalIds = [...alreadyMine]
 
@@ -214,9 +214,9 @@ function SeatMap() {
     }
   }
 
-  const bg   = isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
+  const bg = isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
   const card = isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-white'
-  const sub  = isDark ? 'text-slate-400' : 'text-slate-600'
+  const sub = isDark ? 'text-slate-400' : 'text-slate-600'
 
   if (loading) {
     return <div className={`py-16 text-center ${sub}`}>Đang tải sơ đồ ghế...</div>
@@ -228,7 +228,7 @@ function SeatMap() {
         <div className={`rounded-3xl border p-8 ${card}`}>
           <h1 className="text-2xl font-semibold">Không tìm thấy sự kiện</h1>
           <p className={`mt-2 ${sub}`}>{error}</p>
-          <Link to="/" className="mt-4 inline-flex rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white">Về trang chủ</Link>
+          <Link to="/home" className="mt-4 inline-flex rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white">Về trang chủ</Link>
         </div>
       </div>
     )
@@ -264,11 +264,10 @@ function SeatMap() {
                   key={sec.section_id}
                   onClick={() => setSelectedSectionId(sec.section_id)}
                   style={selectedSectionId === sec.section_id ? { background: sec.color } : {}}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                    selectedSectionId === sec.section_id
-                      ? 'text-white shadow-md'
-                      : isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-700'
-                  }`}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${selectedSectionId === sec.section_id
+                    ? 'text-white shadow-md'
+                    : isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-700'
+                    }`}
                 >
                   {sec.section_name} · {sec.price.toLocaleString()} VND
                 </button>

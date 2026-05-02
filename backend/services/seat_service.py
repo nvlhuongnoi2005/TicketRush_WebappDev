@@ -1,5 +1,5 @@
 """
-Seat locking service — PostgreSQL only.
+Seat locking service - PostgreSQL only.
 
 Concurrency strategy: SELECT ... FOR UPDATE NOWAIT
 → Khi 2 request cùng lúc lock cùng ghế, chỉ 1 transaction thành công,
