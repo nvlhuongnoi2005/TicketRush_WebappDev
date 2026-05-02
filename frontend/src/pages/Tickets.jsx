@@ -222,7 +222,7 @@ function Tickets() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { navigate('/login', { replace: true }); return }
+    if (!user) { navigate('/', { replace: true }); return }
     setLoading(true)
     ticketsApi.list()
       .then(setTickets)

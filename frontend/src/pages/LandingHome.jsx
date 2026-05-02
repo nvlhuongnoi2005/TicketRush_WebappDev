@@ -88,7 +88,7 @@ function Ticker({ top = false }) {
 const CONCERT_IMG = 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80'
 const FESTIVAL_IMG = 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=600&q=80'
 
-function AuthDialog({ mode, onClose, onSwitch, onSuccess }) {
+function AuthDialog({ mode, onClose, onSwitch, onSuccess, onForgotPassword }) {
     const { login, register } = useAuth()
     const isLogin = mode === 'login'
     const imgSrc = isLogin ? CONCERT_IMG : FESTIVAL_IMG
@@ -151,13 +151,13 @@ function AuthDialog({ mode, onClose, onSwitch, onSuccess }) {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="display-font fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: 'rgba(10,14,26,0.75)', backdropFilter: 'blur(6px)' }}
             onClick={e => e.target === e.currentTarget && onClose()}
         >
             <div
                 className="relative flex w-full overflow-hidden rounded-2xl shadow-2xl"
-                style={{ maxWidth: isLogin ? 720 : 1050, maxHeight: '92vh', background: '#fff' }}
+                style={{ maxWidth: isLogin ? 800 : 1050, maxHeight: '92vh', background: '#fff' }}
             >
                 {/* ── Left: image panel (30%) ── */}
                 <div className="relative hidden w-[40%] shrink-0 md:block">
@@ -203,9 +203,6 @@ function AuthDialog({ mode, onClose, onSwitch, onSuccess }) {
                             <h2 className="text-lg font-extrabold tracking-tight text-slate-900">
                                 {isLogin ? 'Đăng nhập' : 'Tạo tài khoản'}
                             </h2>
-                            <p className="mt-0.5 text-xs text-slate-400">
-                                {isLogin ? 'Điền thông tin để tiếp tục' : 'Hoàn toàn miễn phí • Không quảng cáo'}
-                            </p>
                         </div>
                         <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -237,7 +234,15 @@ function AuthDialog({ mode, onClose, onSwitch, onSuccess }) {
                                     label="Mật khẩu" id="l-password" type={showLPw ? 'text' : 'password'}
                                     value={loginData.password} onChange={e => setLoginData(p => ({ ...p, password: e.target.value }))}
                                     placeholder="••••••••" required
-                                    hint={<Link to="/forgot-password" className="text-[11px] font-medium text-sky-500 hover:text-sky-400">Quên mật khẩu?</Link>}
+                                    hint={
+                                        <button
+                                            type="button"
+                                            onClick={onForgotPassword}
+                                            className="text-[11px] font-medium text-sky-500 transition hover:text-sky-400"
+                                        >
+                                            Quên mật khẩu?
+                                        </button>
+                                    }
                                     right={
                                         <button type="button" tabIndex={-1} onClick={() => setShowLPw(v => !v)}
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -373,10 +378,238 @@ function AuthDialog({ mode, onClose, onSwitch, onSuccess }) {
     )
 }
 
+// ─── Forgot Password Dialog ────────────────────────────────────────────────────
+const FORGOT_IMG = 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=600&q=80'
+
+function ForgotPasswordDialog({ onClose, onBackToLogin }) {
+    const [step, setStep] = useState(1) // 1 = request link, 2 = success
+    const [identifier, setIdentifier] = useState('') // email hoặc username
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [sentTo, setSentTo] = useState('')
+
+    // Trap scroll
+    useEffect(() => {
+        document.body.style.overflow = 'hidden'
+        return () => { document.body.style.overflow = '' }
+    }, [])
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setError('')
+
+        const v = identifier.trim()
+        if (!v) {
+            setError('Vui lòng nhập email hoặc tên đăng nhập.')
+            return
+        }
+        // nếu có @ thì validate email
+        if (v.includes('@') && !/^\S+@\S+\.\S+$/.test(v)) {
+            setError('Email không hợp lệ.')
+            return
+        }
+
+        setLoading(true)
+        try {
+            // TODO: thay bằng API thực: await authApi.forgotPassword({ identifier: v })
+            await new Promise(r => setTimeout(r, 800))
+            setSentTo(v)
+            setStep(2)
+        } catch (err) {
+            setError(err.message || 'Không thể gửi yêu cầu. Vui lòng thử lại.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <div
+            className="display-font fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(10,14,26,0.75)', backdropFilter: 'blur(6px)' }}
+            onClick={e => e.target === e.currentTarget && onClose()}
+        >
+            <div
+                className="relative flex w-full overflow-hidden rounded-2xl shadow-2xl"
+                style={{ maxWidth: 800, maxHeight: '92vh', background: '#fff' }}
+            >
+                {/* ── Left: image panel ── */}
+                <div className="relative hidden w-[40%] shrink-0 md:block">
+                    <img src={FORGOT_IMG} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(14,165,233,0.55) 0%, rgba(79,70,229,0.7) 100%)' }} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-between px-6 py-8 text-white">
+                        <div className="text-center">
+                            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
+                                    <rect x="4" y="11" width="16" height="9" rx="2" />
+                                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                                </svg>
+                            </div>
+                            <p className="mt-2 text-sm font-bold tracking-widest opacity-90">TICKETRUSH</p>
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-xl font-extrabold leading-tight">
+                                {step === 1 ? 'Quên mật khẩu?\nĐừng lo.' : 'Đã gửi!\nKiểm tra email.'}
+                            </p>
+                            <p className="mt-2 text-xs leading-relaxed opacity-70">
+                                {step === 1
+                                    ? 'Chúng tôi sẽ gửi link đặt lại mật khẩu qua email của bạn.'
+                                    : 'Link đặt lại sẽ hết hạn sau 30 phút. Hãy kiểm tra cả thư mục spam.'}
+                            </p>
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-xs opacity-60">Nhớ ra mật khẩu?</p>
+                            <button onClick={onBackToLogin} className="mt-1 rounded-full border border-white/40 bg-white/15 px-4 py-1.5 text-xs font-semibold backdrop-blur-sm transition hover:bg-white/25">
+                                Đăng nhập
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Right: form ── */}
+                <div className="flex flex-1 flex-col overflow-y-auto">
+                    {/* header */}
+                    <div className="flex items-center justify-between border-b border-slate-100 px-7 py-5">
+                        <div>
+                            <h2 className="text-lg font-extrabold tracking-tight text-slate-900">
+                                {step === 1 ? 'Đặt lại mật khẩu' : 'Email đã được gửi'}
+                            </h2>
+                            <p className="mt-0.5 text-xs text-slate-400">
+                                {step === 1 ? 'Nhập email hoặc tên đăng nhập để tiếp tục' : 'Vui lòng kiểm tra hộp thư'}
+                            </p>
+                        </div>
+                        <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                <path d="M3 3l10 10M13 3L3 13" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div className="flex-1 px-7 py-6">
+                        {/* error */}
+                        {error && (
+                            <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5">
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="mt-0.5 shrink-0" stroke="#f43f5e" strokeWidth="1.8">
+                                    <circle cx="8" cy="8" r="6" /><path d="M8 5v3M8 11h.01" strokeLinecap="round" />
+                                </svg>
+                                <p className="text-xs text-rose-600">{error}</p>
+                            </div>
+                        )}
+
+                        {/* ── STEP 1: request form ── */}
+                        {step === 1 && (
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                {/* info card */}
+                                <div className="flex items-start gap-3 rounded-lg border border-sky-100 bg-sky-50/50 px-3.5 py-3">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="mt-0.5 shrink-0" stroke="#0ea5e9" strokeWidth="1.6">
+                                        <circle cx="8" cy="8" r="6" />
+                                        <path d="M8 5v3.5M8 11h.01" strokeLinecap="round" />
+                                    </svg>
+                                    <p className="text-xs leading-relaxed text-slate-600">
+                                        Chúng tôi sẽ gửi link đặt lại mật khẩu đến email đã đăng ký với tài khoản này.
+                                    </p>
+                                </div>
+
+                                <Input
+                                    label="Email hoặc tên đăng nhập"
+                                    id="fp-identifier"
+                                    type="text"
+                                    value={identifier}
+                                    onChange={e => { setIdentifier(e.target.value); setError('') }}
+                                    placeholder="a@mail.com hoặc nguyenvana"
+                                    required
+                                    autoFocus
+                                />
+
+                                <button type="submit" disabled={loading}
+                                    className="mt-2 w-full rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 py-3 text-sm font-bold text-white shadow-md shadow-sky-500/20 transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50">
+                                    {loading ? 'Đang gửi…' : 'Gửi link đặt lại'}
+                                </button>
+
+                                <button type="button" onClick={onBackToLogin}
+                                    className="flex w-full items-center justify-center gap-1.5 py-1 text-xs font-medium text-slate-500 transition hover:text-slate-700">
+                                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                        <path d="M13 8H3M7 4L3 8l4 4" />
+                                    </svg>
+                                    Quay lại đăng nhập
+                                </button>
+                            </form>
+                        )}
+
+                        {/* ── STEP 2: success ── */}
+                        {step === 2 && (
+                            <div className="space-y-5">
+                                {/* success icon */}
+                                <div className="flex justify-center">
+                                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
+                                        <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/20" />
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M4 12.5l5 5L20 6.5" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <p className="text-sm text-slate-600">
+                                        Chúng tôi đã gửi link đặt lại mật khẩu đến
+                                    </p>
+                                    <p className="mt-1 break-all text-sm font-bold text-slate-900">{sentTo}</p>
+                                </div>
+
+                                {/* checklist */}
+                                <div className="rounded-lg border border-slate-100 bg-slate-50/50 p-4">
+                                    <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">Tiếp theo</p>
+                                    <ul className="space-y-1.5 text-xs text-slate-600">
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-[9px] font-bold text-sky-600">1</span>
+                                            Mở email và bấm vào link đặt lại
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-[9px] font-bold text-sky-600">2</span>
+                                            Tạo mật khẩu mới (link hết hạn sau 30 phút)
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-[9px] font-bold text-sky-600">3</span>
+                                            Đăng nhập với mật khẩu mới
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <button onClick={onBackToLogin}
+                                    className="w-full rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 py-3 text-sm font-bold text-white shadow-md shadow-sky-500/20 transition hover:opacity-90 active:scale-[0.98]">
+                                    Quay lại đăng nhập
+                                </button>
+
+                                <button type="button" onClick={() => { setStep(1); setError('') }}
+                                    className="w-full text-center text-xs font-medium text-slate-500 transition hover:text-slate-700">
+                                    Không nhận được email? Gửi lại
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="border-t border-slate-50 px-7 py-4 text-center text-[11px] text-slate-300">
+                        Cần hỗ trợ?{' '}
+                        <a href="mailto:support@ticketrush.vn" className="font-medium underline underline-offset-2 hover:text-slate-500">
+                            support@ticketrush.vn
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ─── Keyframes ─────────────────────────────────────────────────────────────────
 const CSS = `
 
 * { box-sizing: border-box; }
+
+button:not(:disabled) { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+a { cursor: pointer; }
 
 :root {
   --ink: #0a0e1a;
@@ -453,6 +686,7 @@ const IMG_SPORT = 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?
 const IMG_ART = 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&q=80'
 const IMG_NIGHT = 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80'
 const IMG_CROWD = 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=600&q=80'
+const QR_IMG = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TicketRush'
 
 const FEATURES = [
     { icon: '🎯', title: 'Đặt vé chính xác', desc: 'Sơ đồ ghế ngồi trực quan theo thời gian thực - biết chính xác chỗ ngồi trước khi thanh toán.' },
@@ -475,7 +709,7 @@ const TICKER_ITEMS = [
 
 // ─── Landing Page ──────────────────────────────────────────────────────────────
 export default function LandingHome() {
-    const [authMode, setAuthMode] = useState(null) // 'login' | 'register' | null
+    const [authMode, setAuthMode] = useState(null) // 'login' | 'register' | 'forgot' | null
     const navigate = useNavigate()
     const { user } = useAuth()
 
@@ -485,8 +719,10 @@ export default function LandingHome() {
 
     const openLogin = () => setAuthMode('login')
     const openRegister = () => setAuthMode('register')
+    const openForgot = () => setAuthMode('forgot')
     const closeAuth = () => setAuthMode(null)
     const switchMode = () => setAuthMode(m => m === 'login' ? 'register' : 'login')
+    const backToLogin = () => setAuthMode('login')
     const onSuccess = () => {
         closeAuth()
         navigate('/home')
@@ -600,13 +836,18 @@ export default function LandingHome() {
 
                                 {/* card 3 - QR */}
                                 <div className="float-c absolute bottom-8 left-1/2 -translate-x-1/2 w-44 rounded-2xl border border-white/10 bg-white/95 p-4 shadow-2xl shadow-black/50 text-center backdrop-blur-sm">
-                                    <div className="mx-auto mb-2 grid h-20 w-20 grid-cols-3 gap-0.5">
-                                        {Array.from({ length: 9 }).map((_, i) => (
-                                            <div key={i} className={`rounded-sm ${[0, 2, 6, 8].includes(i) ? 'bg-slate-800' : i === 4 ? 'bg-sky-500' : 'bg-slate-200'}`} />
-                                        ))}
-                                    </div>
+                                    <img
+                                        src={QR_IMG}
+                                        alt="QR Ticket"
+                                        className="mx-auto mb-2 h-20 w-20 rounded-lg border border-slate-100 object-cover"
+                                    />
+
                                     <p className="text-[10px] font-bold text-slate-700">Vé điện tử</p>
                                     <p className="text-[9px] text-slate-400">Quét để vào cổng</p>
+
+                                    <div className="mt-2 inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-emerald-600">
+                                        Verified
+                                    </div>
                                 </div>
                             </div>
 
@@ -691,13 +932,20 @@ export default function LandingHome() {
                     </div>
                 </section>
 
-                {/* ══ AUTH DIALOG ══ */}
-                {authMode && (
+                {/* ══ AUTH DIALOGS ══ */}
+                {(authMode === 'login' || authMode === 'register') && (
                     <AuthDialog
                         mode={authMode}
                         onClose={closeAuth}
                         onSwitch={switchMode}
                         onSuccess={onSuccess}
+                        onForgotPassword={openForgot}
+                    />
+                )}
+                {authMode === 'forgot' && (
+                    <ForgotPasswordDialog
+                        onClose={closeAuth}
+                        onBackToLogin={backToLogin}
                     />
                 )}
             </div>

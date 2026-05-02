@@ -30,7 +30,7 @@ function AdminEvents() {
   useEffect(() => {
     if (authLoading) return
     if (!user || user.role !== 'admin') {
-      navigate('/login', { replace: true })
+      navigate('/', { replace: true })
     }
   }, [user, authLoading, navigate])
 

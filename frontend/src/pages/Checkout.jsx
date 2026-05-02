@@ -68,7 +68,7 @@ function Checkout() {
   // Create order on mount
   useEffect(() => {
     if (authLoading) return
-    if (!user) { navigate('/login', { replace: true }); return }
+    if (!user) { navigate('/', { replace: true }); return }
     if (!seatIds.length) { navigate('/'); return }
 
     ordersApi.create({ seat_ids: seatIds })

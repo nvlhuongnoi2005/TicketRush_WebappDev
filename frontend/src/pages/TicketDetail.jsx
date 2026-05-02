@@ -119,7 +119,7 @@ function TicketDetail() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { navigate('/login', { replace: true }); return }
+    if (!user) { navigate('/', { replace: true }); return }
     setLoading(true)
     ticketsApi.get(ticketId)
       .then(setTicket)

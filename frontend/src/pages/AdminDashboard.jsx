@@ -136,7 +136,7 @@ function AdminDashboard() {
   useEffect(() => {
     if (authLoading) return
     if (!user || user.role !== 'admin') {
-      navigate('/login', { replace: true })
+      navigate('/', { replace: true })
     }
   }, [user, authLoading, navigate])
 
@@ -185,29 +185,29 @@ function AdminDashboard() {
 
   const kpis = dashboard
     ? [
-        { label: 'Tổng sự kiện', value: dashboard.total_events },
-        { label: 'Đang mở bán', value: dashboard.active_events },
-        { label: 'Vé đã bán', value: Number(dashboard.total_tickets_sold).toLocaleString() },
-        { label: 'Doanh thu', value: `${Number(dashboard.total_revenue).toLocaleString()} ₫` },
-      ]
+      { label: 'Tổng sự kiện', value: dashboard.total_events },
+      { label: 'Đang mở bán', value: dashboard.active_events },
+      { label: 'Vé đã bán', value: Number(dashboard.total_tickets_sold).toLocaleString() },
+      { label: 'Doanh thu', value: `${Number(dashboard.total_revenue).toLocaleString()} ₫` },
+    ]
     : []
 
   const genderSlices = audience
     ? [
-        { label: 'Nam', value: audience.gender_male, color: '#38bdf8' },
-        { label: 'Nữ', value: audience.gender_female, color: '#f472b6' },
-        { label: 'Khác', value: audience.gender_other, color: '#a78bfa' },
-      ]
+      { label: 'Nam', value: audience.gender_male, color: '#38bdf8' },
+      { label: 'Nữ', value: audience.gender_female, color: '#f472b6' },
+      { label: 'Khác', value: audience.gender_other, color: '#a78bfa' },
+    ]
     : []
 
   const ageBars = audience
     ? [
-        { label: '<18', value: audience.age_under_18 },
-        { label: '18-25', value: audience.age_18_25 },
-        { label: '26-35', value: audience.age_26_35 },
-        { label: '36-45', value: audience.age_36_45 },
-        { label: '45+', value: audience.age_above_45 },
-      ]
+      { label: '<18', value: audience.age_under_18 },
+      { label: '18-25', value: audience.age_18_25 },
+      { label: '26-35', value: audience.age_26_35 },
+      { label: '36-45', value: audience.age_36_45 },
+      { label: '45+', value: audience.age_above_45 },
+    ]
     : []
 
   const card = `rounded-3xl border p-5 shadow-lg ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`

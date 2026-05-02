@@ -64,7 +64,7 @@ function SeatMap() {
   // Initial load - also restores seats locked in a previous session (e.g. logout mid-checkout)
   useEffect(() => {
     if (authLoading) return
-    if (!user) { navigate('/login', { replace: true }); return }
+    if (!user) { navigate('/', { replace: true }); return }
     setLoading(true)
     Promise.all([eventsApi.get(eventId), eventsApi.seats(eventId)])
       .then(([ev, map]) => {

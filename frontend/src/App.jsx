@@ -23,6 +23,9 @@ import Register from './pages/Register.jsx'
 import NotFound from './pages/NotFound.jsx'
 import Profile from './pages/Profile.jsx'
 import Search from './pages/Search.jsx'
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
+import TermsOfService from './pages/TermsOfService.jsx'
+import ContactUs from './pages/ContactUs.jsx'
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password']
 
@@ -58,16 +61,19 @@ function App() {
             <Route path="/admin/events" element={<AdminEvents />} />
             <Route path="/admin/events/create" element={<AdminCreateEvent />} />
             {/* <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} /> */}
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} /> */}
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/contact-us" element={<ContactUs />} />
           </Routes>
         </QueueInterceptor>
       </main>
 
-      {showLayout && <Footer />}
+      <Footer />
     </div>
   )
 }

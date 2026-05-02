@@ -306,7 +306,7 @@ function Header() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [events, setEvents] = useState([])
 
-  const isAuthPage = ['/login', '/register'].includes(location.pathname)
+  const isAuthPage = ['/', '/register'].includes(location.pathname)
   const isHomePage = location.pathname === '/'
   const activeCategory = searchParams.get('category') ?? 'all'
 
@@ -411,7 +411,7 @@ function Header() {
           ) : (
             <div className="flex items-center gap-2">
               <Link
-                to="/login"
+                to="/"
                 className={`rounded-xl px-4 py-2 text-sm font-medium transition ${isDark
                   ? 'text-slate-300 hover:bg-slate-800'
                   : 'text-slate-700 hover:bg-slate-100'
