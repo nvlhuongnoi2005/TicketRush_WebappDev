@@ -28,6 +28,7 @@ import TermsOfService from './pages/TermsOfService.jsx'
 import ContactUs from './pages/ContactUs.jsx'
 
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password']
 
@@ -82,6 +83,7 @@ function App() {
           </Routes>
         </QueueInterceptor>
         <Analytics />
+        <SpeedInsights />
       </main>
 
       <Footer />
