@@ -759,7 +759,7 @@ export default function LandingHome() {
                             <div>
                                 <div className="hero-h1 mb-4 inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-4 py-1.5 text-xs font-semibold text-sky-400 backdrop-blur-sm">
                                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-400" />
-                                    Nền tảng đặt vé #2 Việt Nam
+                                    Nền tảng đặt vé #1 Việt Nam
                                 </div>
 
                                 <h1 className="hero-h1 display-font flex items-center gap-3 text-5xl font-extrabold leading-[1.05] tracking-tight text-white md:gap-4 md:text-6xl lg:gap-5 lg:text-7xl">
