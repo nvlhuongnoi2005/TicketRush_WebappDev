@@ -504,7 +504,7 @@ async def ai_insights(
     db: Session = Depends(get_db),
     _=Depends(get_current_admin),
 ):
-    """Gọi Gemini để sinh insights — chỉ chạy khi admin bấm nút."""
+    """Gọi Gemini để sinh insights - chỉ chạy khi admin bấm nút."""
 
     # Build stats payload
     stats = {}

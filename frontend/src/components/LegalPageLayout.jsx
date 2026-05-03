@@ -112,22 +112,31 @@ export default function LegalPageLayout({ eyebrow, title, lastUpdated, intro, se
                             Quay về trang chủ
                         </Link>
 
-                        <p className="legal-hero mt-6 text-xs font-bold uppercase tracking-[0.25em] text-white/70">
-                            {eyebrow}
-                        </p>
-                        <h1 className="legal-hero mt-2 text-4xl font-extrabold tracking-tight text-white md:text-5xl"
-                            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                            {title}
-                        </h1>
-                        {lastUpdated && (
-                            <div className="legal-meta mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                                    <rect x="2" y="3" width="12" height="11" rx="2" />
-                                    <path d="M5 2v2M11 2v2M2 7h12" />
-                                </svg>
-                                Cập nhật: {lastUpdated}
+                        <div className="legal-hero mt-6 flex items-center gap-4 md:gap-5">
+                            <img
+                                src="/ticketrush.png"
+                                alt="TicketRush"
+                                className="h-14 w-14 shrink-0 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] md:h-16 md:w-16"
+                            />
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">
+                                    {eyebrow}
+                                </p>
+                                <h1 className="mt-1 text-4xl font-extrabold tracking-tight text-white md:text-5xl"
+                                    style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                                    {title}
+                                </h1>
+                                {lastUpdated && (
+                                    <div className="legal-meta mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                                            <rect x="2" y="3" width="12" height="11" rx="2" />
+                                            <path d="M5 2v2M11 2v2M2 7h12" />
+                                        </svg>
+                                        Cập nhật: {lastUpdated}
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
                     {/* fade to bg */}
                     <div className={`absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b ${isDark ? 'from-transparent to-slate-950' : 'from-transparent to-[#f6f7fb]'}`} />

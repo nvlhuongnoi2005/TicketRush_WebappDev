@@ -157,7 +157,7 @@ def confirm_payment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Giả lập thanh toán – bấm XÁC NHẬN là coi như thanh toán thành công."""
+    """Giả lập thanh toán - bấm XÁC NHẬN là coi như thanh toán thành công."""
     try:
         confirm_order(db, order_id, current_user.id)
     except ValueError as e:

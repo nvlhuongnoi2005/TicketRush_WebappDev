@@ -5,7 +5,7 @@ Cách dùng:
   ws://localhost:8000/ws/events/{event_id}/seats
 
 Server push JSON mỗi 2 giây với trạng thái tất cả ghế.
-Client không cần F5 – ghế chuyển màu tự động theo cập nhật từ server.
+Client không cần F5 - ghế chuyển màu tự động theo cập nhật từ server.
 
 Message format:
 {

@@ -29,7 +29,7 @@ button:not(:disabled), a, select { cursor: pointer; }
 `
 
 const STATUS_CFG = {
-  draft: { label: 'Nháp', cls: 'bg-slate-100 text-slate-600 border-slate-200', dCls: 'bg-slate-500/15 text-slate-400 border-slate-500/30' },
+  draft: { label: 'Nháp', cls: 'bg-amber-50 text-amber-700 border-amber-200', dCls: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
   on_sale: { label: 'Đang bán', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', dCls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
   sold_out: { label: 'Hết vé', cls: 'bg-rose-50 text-rose-700 border-rose-200', dCls: 'bg-rose-500/15 text-rose-400 border-rose-500/30' },
   finished: { label: 'Đã kết thúc', cls: 'bg-slate-100 text-slate-500 border-slate-200', dCls: 'bg-slate-500/15 text-slate-400 border-slate-500/30' },
@@ -39,6 +39,7 @@ const STATUS_CFG = {
 // Bỏ "Nháp" khỏi filter
 const STATUS_FILTERS = [
   { value: 'all', label: 'Tất cả' },
+  { value: 'draft', label: 'Nháp' },
   { value: 'on_sale', label: 'Đang bán' },
   { value: 'sold_out', label: 'Hết vé' },
   { value: 'finished', label: 'Đã kết thúc' },
@@ -326,7 +327,11 @@ function EventCard({ event, onEdit, onDelete, isDark, delay }) {
         </span>
         {event.queue_enabled && (
           <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-400/90 px-2 py-0.5 text-[10px] font-bold text-amber-950 backdrop-blur-md">
-            ⚡ Phòng chờ
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <circle cx="8" cy="8" r="6.5" />
+              <path d="M8 5v3l2 2" />
+            </svg>
+            Phòng chờ
           </span>
         )}
       </div>
@@ -485,7 +490,7 @@ function AdminEvents() {
             {[
               { label: 'Tổng sự kiện', value: stats.total || 0, color: 'sky' },
               { label: 'Đang bán', value: stats.on_sale || 0, color: 'emerald' },
-              { label: 'Hết vé', value: stats.sold_out || 0, color: 'rose' },
+              { label: 'Nháp', value: stats.draft || 0, color: 'amber' },
               { label: 'Đã kết thúc', value: stats.finished || 0, color: 'slate' },
             ].map((s, i) => {
               const colorMap = {
@@ -493,6 +498,7 @@ function AdminEvents() {
                 emerald: isDark ? 'text-emerald-400 bg-emerald-500/15' : 'text-emerald-600 bg-emerald-50',
                 rose: isDark ? 'text-rose-400 bg-rose-500/15' : 'text-rose-600 bg-rose-50',
                 slate: isDark ? 'text-slate-400 bg-slate-500/15' : 'text-slate-600 bg-slate-100',
+                amber: isDark ? 'text-amber-400 bg-amber-500/15' : 'text-amber-600 bg-amber-50',
               }
               return (
                 <div key={s.label}

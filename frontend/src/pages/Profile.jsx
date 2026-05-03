@@ -139,7 +139,7 @@ function Profile() {
     setStatsLoading(true)
     ticketsApi.list()
       .then(setTickets)
-      .catch(() => setTickets([]))  // silent fail — stats là phụ, không cần báo lỗi
+      .catch(() => setTickets([]))  // silent fail - stats là phụ, không cần báo lỗi
       .finally(() => setStatsLoading(false))
   }, [user, authLoading])
 
@@ -340,14 +340,14 @@ function Profile() {
                     <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${isDark ? 'bg-slate-800 text-sky-400' : 'bg-sky-50 text-sky-600'}`}>{Icon.mail}</div>
                     <div className="min-w-0 flex-1">
                       <p className={`text-[10px] font-semibold uppercase tracking-wide ${subtle}`}>Email</p>
-                      <p className="truncate text-sm font-medium">{user?.email || '—'}</p>
+                      <p className="truncate text-sm font-medium">{user?.email || '-'}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${isDark ? 'bg-slate-800 text-sky-400' : 'bg-sky-50 text-sky-600'}`}>{Icon.phone}</div>
                     <div className="min-w-0 flex-1">
                       <p className={`text-[10px] font-semibold uppercase tracking-wide ${subtle}`}>Điện thoại</p>
-                      <p className="truncate text-sm font-medium">{user?.phone || '—'}</p>
+                      <p className="truncate text-sm font-medium">{user?.phone || '-'}</p>
                     </div>
                   </div>
                 </div>

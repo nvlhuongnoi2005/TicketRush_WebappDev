@@ -103,7 +103,7 @@ const Icon = {
   status: <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="8" cy="8" r="2" /><path d="M2 8a6 6 0 0 1 12 0M4 8a4 4 0 0 1 8 0" /></svg>,
   layout: <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>,
 
-  // Dashboard icon — grid with pulse line overlay
+  // Dashboard icon - grid with pulse line overlay
   dashboard: (
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="2" width="7" height="7" rx="1.5" />
@@ -113,7 +113,7 @@ const Icon = {
     </svg>
   ),
 
-  // Event management — calendar with list lines
+  // Event management - calendar with list lines
   manageEvents: (
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="3" width="12" height="11" rx="1.5" />
@@ -387,7 +387,7 @@ const InsightIcon = {
   ),
 }
 
-// AI background images — một mảng ảnh Unsplash concert/event đẹp
+// AI background images - một mảng ảnh Unsplash concert/event đẹp
 const AI_BG_IMAGES = [
   'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80', // concert crowd
   'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=80', // stage lights

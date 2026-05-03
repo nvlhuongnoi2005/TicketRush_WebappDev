@@ -1,5 +1,5 @@
 /**
- * Lightweight fetch wrapper – giao tiếp với FastAPI backend qua Vite proxy /api
+ * Lightweight fetch wrapper - giao tiếp với FastAPI backend qua Vite proxy /api
  * Tự động đính kèm JWT token và parse JSON lỗi thành Error message.
  */
 

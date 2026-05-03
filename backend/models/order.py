@@ -28,7 +28,7 @@ class Order(Base):
 
 
 class OrderItem(Base):
-    """Dòng chi tiết đơn hàng – mỗi dòng ứng với 1 ghế"""
+    """Dòng chi tiết đơn hàng - mỗi dòng ứng với 1 ghế"""
     __tablename__ = "order_items"
 
     id = Column(Integer, primary_key=True, index=True)

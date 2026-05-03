@@ -12,9 +12,9 @@ OUTPUT = "seed_events.sql"
 EVENTS = [
     {
         "id": 1,
-        "title": "Sơn Tùng M-TP: Sky Tour 2025 – Live in Hà Nội",
+        "title": "Sơn Tùng M-TP: Sky Tour 2025 - Live in Hà Nội",
         "description": (
-            "Sky Tour trở lại với quy mô chưa từng có – đêm nhạc hoành tráng nhất năm 2025. "
+            "Sky Tour trở lại với quy mô chưa từng có - đêm nhạc hoành tráng nhất năm 2025. "
             "Sơn Tùng M-TP sẽ trình diễn hơn 25 ca khúc hit cùng dàn vũ công, "
             "hiệu ứng ánh sáng và pháo hoa đặc biệt."
         ),
@@ -28,20 +28,20 @@ EVENTS = [
         "status": "on_sale",
         "queue_enabled": True,
         "sections": [
-            {"id": 1, "name": "SVIP – Sân khấu",  "rows": 5,  "cols": 20, "price": 3_500_000, "color": "#f59e0b"},
-            {"id": 2, "name": "Khu A – Khán đài", "rows": 10, "cols": 30, "price": 2_000_000, "color": "#6366f1"},
-            {"id": 3, "name": "Khu B – Khán đài", "rows": 12, "cols": 40, "price": 1_200_000, "color": "#10b981"},
+            {"id": 1, "name": "SVIP - Sân khấu",  "rows": 5,  "cols": 20, "price": 3_500_000, "color": "#f59e0b"},
+            {"id": 2, "name": "Khu A - Khán đài", "rows": 10, "cols": 30, "price": 2_000_000, "color": "#6366f1"},
+            {"id": 3, "name": "Khu B - Khán đài", "rows": 12, "cols": 40, "price": 1_200_000, "color": "#10b981"},
         ],
     },
     {
         "id": 2,
-        "title": "MONO Live Concert: Ký Ức – TP.HCM",
+        "title": "MONO Live Concert: Ký Ức - TP.HCM",
         "description": (
             "MONO mang đến một đêm nhạc đầy cảm xúc với những tình khúc đã chạm đến triệu trái tim. "
             "Concert quy mô vừa, mang lại trải nghiệm thân mật và gần gũi giữa nghệ sĩ và khán giả."
         ),
         "artist": "MONO",
-        "venue_name": "Nhà hát TP.HCM – Trung tâm Hội nghị",
+        "venue_name": "Nhà hát TP.HCM - Trung tâm Hội nghị",
         "venue_address": "7 Công Trường Lam Sơn, Bến Nghé, Quận 1, TP.HCM",
         "event_date": "2025-09-06 20:00:00",
         "sale_start": "2025-07-01 09:00:00",
@@ -50,19 +50,19 @@ EVENTS = [
         "status": "on_sale",
         "queue_enabled": False,
         "sections": [
-            {"id": 4, "name": "VIP – Hàng đầu",  "rows": 4, "cols": 15, "price": 2_800_000, "color": "#f59e0b"},
-            {"id": 5, "name": "Thường – Tầng 1", "rows": 8, "cols": 25, "price": 1_500_000, "color": "#3b82f6"},
-            {"id": 6, "name": "Thường – Tầng 2", "rows": 6, "cols": 30, "price":   800_000, "color": "#8b5cf6"},
+            {"id": 4, "name": "VIP - Hàng đầu",  "rows": 4, "cols": 15, "price": 2_800_000, "color": "#f59e0b"},
+            {"id": 5, "name": "Thường - Tầng 1", "rows": 8, "cols": 25, "price": 1_500_000, "color": "#3b82f6"},
+            {"id": 6, "name": "Thường - Tầng 2", "rows": 6, "cols": 30, "price":   800_000, "color": "#8b5cf6"},
         ],
     },
     {
         "id": 3,
         "title": "Rap Việt Season 4: Grand Final",
         "description": (
-            "Đêm chung kết hoành tráng của Rap Việt mùa 4 – nơi những rapper xuất sắc nhất tranh tài "
+            "Đêm chung kết hoành tráng của Rap Việt mùa 4 - nơi những rapper xuất sắc nhất tranh tài "
             "cùng màn trình diễn bùng nổ của các huấn luyện viên và khách mời đặc biệt."
         ),
-        "artist": "Various Artists – Rap Việt S4",
+        "artist": "Various Artists - Rap Việt S4",
         "venue_name": "Trung tâm Hội chợ & Triển lãm Sài Gòn (SECC)",
         "venue_address": "799 Nguyễn Văn Linh, Tân Phú, Quận 7, TP.HCM",
         "event_date": "2025-10-18 18:00:00",
@@ -72,9 +72,9 @@ EVENTS = [
         "status": "on_sale",
         "queue_enabled": True,
         "sections": [
-            {"id": 7, "name": "Diamond – Sân khấu", "rows":  3, "cols": 20, "price": 4_000_000, "color": "#06b6d4"},
-            {"id": 8, "name": "Gold – Giữa sân",    "rows":  8, "cols": 35, "price": 2_200_000, "color": "#eab308"},
-            {"id": 9, "name": "Silver – Khán đài",  "rows": 15, "cols": 50, "price":   900_000, "color": "#94a3b8"},
+            {"id": 7, "name": "Diamond - Sân khấu", "rows":  3, "cols": 20, "price": 4_000_000, "color": "#06b6d4"},
+            {"id": 8, "name": "Gold - Giữa sân",    "rows":  8, "cols": 35, "price": 2_200_000, "color": "#eab308"},
+            {"id": 9, "name": "Silver - Khán đài",  "rows": 15, "cols": 50, "price":   900_000, "color": "#94a3b8"},
         ],
     },
 ]
@@ -85,7 +85,7 @@ def esc(s: str) -> str:
 
 
 def make_label(section_name: str, row: int, col: int) -> str:
-    prefix = section_name.split("–")[0].strip().split()[0][:4].upper()
+    prefix = section_name.split("-")[0].strip().split()[0][:4].upper()
     return f"{prefix}{row + 1}-{str(col + 1).zfill(2)}"
 
 
@@ -94,7 +94,7 @@ lines: list[str] = []
 # ─── Header ──────────────────────────────────────────────────────────────────
 lines += [
     "-- ============================================================",
-    "-- TicketRush – schema + dữ liệu mẫu 3 sự kiện",
+    "-- TicketRush - schema + dữ liệu mẫu 3 sự kiện",
     f"-- Sinh tự động lúc {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
     "-- ============================================================",
     "",

@@ -166,13 +166,16 @@ function AuthDialog({ mode, onClose, onSwitch, onSuccess, onForgotPassword }) {
                     <div className="absolute inset-0 flex flex-col items-center justify-between px-6 py-8 text-white">
                         {/* logo */}
                         <div className="text-center">
-                            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
-                                    <path d="M2 9a1 1 0 0 1 0-2V6h20v1a1 1 0 0 1 0 2v1a1 1 0 0 1 0 2v1H2v-1a1 1 0 0 1 0-2V9Z" />
-                                    <line x1="9" y1="6" x2="9" y2="18" strokeDasharray="2 2" />
-                                </svg>
+                            <div className="mx-auto flex h-8 w-8 items-center justify-center">
+                                <img
+                                    src="/ticketrush.png"
+                                    alt="TicketRush"
+                                    className="h-full w-full object-contain"
+                                />
                             </div>
-                            <p className="mt-2 text-sm font-bold tracking-widest opacity-90">TICKETRUSH</p>
+                            <p className="mt-2 text-sm font-extrabold tracking-widest">
+                                <span className="text-white">TICKET</span><span className="text-sky-300">RUSH</span>
+                            </p>
                         </div>
                         {/* tagline */}
                         <div className="text-center">
@@ -181,7 +184,7 @@ function AuthDialog({ mode, onClose, onSwitch, onSuccess, onForgotPassword }) {
                             </p>
                             <p className="mt-2 text-xs leading-relaxed opacity-70">
                                 {isLogin
-                                    ? 'Đăng nhập để xem sự kiện yêu thích và đặt vé ngay.'
+                                    ? 'Đăng nhập để tham gia các sự kiện yêu thích và đặt vé ngay.'
                                     : 'Tạo tài khoản miễn phí và khám phá hàng nghìn sự kiện.'}
                             </p>
                         </div>
@@ -370,7 +373,7 @@ function AuthDialog({ mode, onClose, onSwitch, onSuccess, onForgotPassword }) {
 
                     <div className="border-t border-slate-50 px-7 py-4 text-center text-[11px] text-slate-300">
                         Tiếp tục đồng nghĩa với việc bạn chấp nhận{' '}
-                        <a href="#" className="underline underline-offset-2 hover:text-slate-500">Điều khoản dịch vụ</a>
+                        <a href="/terms-of-service" className="underline underline-offset-2 hover:text-slate-500">Điều khoản dịch vụ</a>
                     </div>
                 </div>
             </div>
@@ -437,14 +440,18 @@ function ForgotPasswordDialog({ onClose, onBackToLogin }) {
                     <img src={FORGOT_IMG} alt="" className="absolute inset-0 h-full w-full object-cover" />
                     <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(14,165,233,0.55) 0%, rgba(79,70,229,0.7) 100%)' }} />
                     <div className="absolute inset-0 flex flex-col items-center justify-between px-6 py-8 text-white">
+                        {/* logo */}
                         <div className="text-center">
-                            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
-                                    <rect x="4" y="11" width="16" height="9" rx="2" />
-                                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-                                </svg>
+                            <div className="mx-auto flex h-8 w-8 items-center justify-center">
+                                <img
+                                    src="/ticketrush.png"
+                                    alt="TicketRush"
+                                    className="h-full w-full object-contain"
+                                />
                             </div>
-                            <p className="mt-2 text-sm font-bold tracking-widest opacity-90">TICKETRUSH</p>
+                            <p className="mt-2 text-sm font-extrabold tracking-widest">
+                                <span className="text-white">TICKET</span><span className="text-sky-300">RUSH</span>
+                            </p>
                         </div>
 
                         <div className="text-center">
@@ -755,7 +762,12 @@ export default function LandingHome() {
                                     Nền tảng đặt vé #1 Việt Nam
                                 </div>
 
-                                <h1 className="hero-h1 display-font text-5xl font-extrabold leading-[1.05] tracking-tight text-white md:text-6xl lg:text-7xl">
+                                <h1 className="hero-h1 display-font flex items-center gap-3 text-5xl font-extrabold leading-[1.05] tracking-tight text-white md:gap-4 md:text-6xl lg:gap-5 lg:text-7xl">
+                                    <img
+                                        src="/ticketrush.png"
+                                        alt="TicketRush logo"
+                                        className="h-14 w-14 shrink-0 object-contain drop-shadow-[0_0_24px_rgba(14,165,233,0.5)] md:h-16 md:w-16 lg:h-20 lg:w-20"
+                                    />
                                     <span className="gradient-text">TicketRush</span>
                                 </h1>
 

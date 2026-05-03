@@ -208,7 +208,7 @@ function SearchBox({ isDark, events = [] }) {
                 : 'border-slate-200 bg-white hover:border-slate-300'
             }`}
         >
-          {/* Search icon — gradient when active/has value */}
+          {/* Search icon - gradient when active/has value */}
           <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all ${open || hasValue
             ? 'srch-shimmer-bg text-white shadow-sm'
             : isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-100 text-slate-500'
@@ -438,8 +438,19 @@ function Header() {
       <div className="mx-auto flex max-w-7xl items-center gap-5 px-6 py-3.5 md:px-8">
 
         {/* Logo */}
-        <Link to="/" className="shrink-0">
-          <span className={`text-xl font-extrabold tracking-tight ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
+        <Link to="/" className="shrink-0 flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center overflow-hidden">
+            <img
+              src="/ticketrush.png"
+              alt="TicketRush"
+              className="h-full w-full object-contain"
+            />
+          </div>
+
+          <span
+            className={`leading-none text-xl font-extrabold tracking-tight ${isDark ? 'text-slate-50' : 'text-slate-900'
+              }`}
+          >
             Ticket<span className="text-sky-500">Rush</span>
           </span>
         </Link>

@@ -1,9 +1,9 @@
 """
 Background scheduler sử dụng APScheduler.
 Jobs:
-  1. release_expired_seats   – chạy mỗi 60s
-  2. cancel_expired_orders   – chạy mỗi 60s
-  3. admit_queue_batches     – chạy mỗi QUEUE_ADMIT_INTERVAL_SECONDS
+  1. release_expired_seats   - chạy mỗi 60s
+  2. cancel_expired_orders   - chạy mỗi 60s
+  3. admit_queue_batches     - chạy mỗi QUEUE_ADMIT_INTERVAL_SECONDS
 """
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger

@@ -144,7 +144,7 @@ function NotFound() {
 
           {/* ── 404 illustration ── */}
           <div className="relative mb-2 select-none">
-            {/* glitch layers (red + blue) — sit behind the main number */}
+            {/* glitch layers (red + blue) - sit behind the main number */}
             <p
               className="nf-404-r absolute inset-0 text-[9rem] font-extrabold leading-none tracking-[-0.06em] tabular-nums md:text-[12rem]"
               style={{ color: '#f43f5e', mixBlendMode: isDark ? 'screen' : 'multiply' }}
@@ -173,7 +173,7 @@ function NotFound() {
               404
             </p>
 
-            {/* torn ticket overlay — sits on top of the "0" */}
+            {/* torn ticket overlay - sits on top of the "0" */}
             <div className="nf-ticket pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <svg width="120" height="80" viewBox="0 0 120 80" fill="none" className="drop-shadow-2xl md:scale-125">
                 {/* left half */}
