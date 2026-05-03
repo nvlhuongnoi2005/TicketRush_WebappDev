@@ -103,6 +103,8 @@ export const queueApi = {
 // ─── Admin ─────────────────────────────────────────────────────────────────────
 export const adminApi = {
   dashboard: () => api.get('/admin/dashboard'),
+  eventDashboard: (eventId) => api.get(`/admin/dashboard/event/${eventId}`),
+  aiInsights: (body) => api.post('/admin/ai-insights', body),
   events: {
     list: () => api.get('/admin/events'),
     get: (id) => api.get(`/admin/events/${id}`),

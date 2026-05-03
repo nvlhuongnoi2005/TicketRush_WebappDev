@@ -78,6 +78,8 @@ class EventOut(BaseModel):
     status: EventStatus
     queue_enabled: bool
     sections: List[SeatSectionOut] = []
+    tickets_sold: Optional[int] = 0
+    revenue: Optional[float] = 0.0
 
     model_config = {"from_attributes": True}
 

@@ -29,6 +29,12 @@ import ContactUs from './pages/ContactUs.jsx'
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password']
 
+const NO_HEADER_PATHS = [
+  '/privacy-policy',
+  '/terms-of-service',
+  '/contact-us',
+]
+
 function App() {
   const location = useLocation()
   const { isDark } = useTheme()
@@ -38,7 +44,9 @@ function App() {
     AUTH_PATHS.includes(location.pathname) ||
     location.pathname.startsWith('/reset-password/')
 
-  const showLayout = !isAuthPage && !!user
+  const isNoHeaderPage = NO_HEADER_PATHS.includes(location.pathname)
+
+  const showLayout = !isAuthPage && !isNoHeaderPage && !!user
 
   return (
     <div className={`flex min-h-screen flex-col ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
