@@ -27,7 +27,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
 import TermsOfService from './pages/TermsOfService.jsx'
 import ContactUs from './pages/ContactUs.jsx'
 
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react";
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password']
 
