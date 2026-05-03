@@ -1,4 +1,4 @@
-# QUY HOẠCH PHẦN MỀM – TICKETRUSH
+# QUY HOẠCH PHẦN MỀM - TICKETRUSH
 
 ## 1. TÍNH NĂNG CHÍNH
 
@@ -47,7 +47,7 @@
 | Tên sự kiện / Nghệ sĩ | Text header lớn | |
 | Ngày giờ, địa điểm | Text + icon | |
 | Mô tả sự kiện | Text dài, có thể collapsible | |
-| Danh sách khu vực ghế | Thẻ mỗi khu: tên, giá, màu, ghế còn lại | VIP – 800,000đ |
+| Danh sách khu vực ghế | Thẻ mỗi khu: tên, giá, màu, ghế còn lại | VIP - 800,000đ |
 | Button Chọn ghế | Chuyển sang Seat Map. Nếu queue_enabled → vào hàng chờ trước | |
 
 ### SƠ ĐỒ GHẾ
@@ -55,7 +55,7 @@
 #### CHỌN GHẾ
 | Thành phần | Mô tả | Lưu ý |
 |-----------|-------|-------|
-| Canvas/Grid sơ đồ ghế | Mỗi ô = 1 ghế, màu theo section.color | Không F5 – dùng WS/polling |
+| Canvas/Grid sơ đồ ghế | Mỗi ô = 1 ghế, màu theo section.color | Không F5 - dùng WS/polling |
 | Trạng thái ghế | available=xanh / locked=vàng / sold=đỏ / locked_by_me=xanh đậm | |
 | Legend màu sắc | Chú thích các trạng thái ghế | |
 | Panel ghế đã chọn | Danh sách ghế đang chọn, tổng tiền | |
@@ -126,7 +126,7 @@
 #### THỐNG KÊ KHÁN GIẢ
 | Thành phần | Mô tả |
 |-----------|-------|
-| Biểu đồ tròn giới tính | Nam / Nữ / Khác – từ GET /api/admin/stats/audience |
+| Biểu đồ tròn giới tính | Nam / Nữ / Khác - từ GET /api/admin/stats/audience |
 | Biểu đồ cột độ tuổi | <18 / 18-25 / 26-35 / 36-45 / >45 |
 | Số lượng từng nhóm | Text kèm biểu đồ |
 
@@ -419,7 +419,7 @@ Trả về ảnh QR PNG binary (để download hoặc hiển thị)
 
 **Success:** 200 image/png (binary)
 
-### Admin – Events
+### Admin - Events
 
 #### POST /api/admin/events
 Tạo sự kiện mới
@@ -445,7 +445,7 @@ Cập nhật thông tin sự kiện (kể cả đổi status)
 Xóa sự kiện và toàn bộ ghế liên quan
 
 #### POST /api/admin/events/{event_id}/sections
-Thêm khu vực ghế – tự động sinh ma trận rows×cols ghế
+Thêm khu vực ghế - tự động sinh ma trận rows×cols ghế
 
 **Request:**
 ```json
@@ -464,7 +464,7 @@ Cập nhật khu vực ghế (giá, màu, tên)
 #### DELETE /api/admin/sections/{section_id}
 Xóa khu vực ghế
 
-### Admin – Dashboard
+### Admin - Dashboard
 
 #### GET /api/admin/dashboard
 Tổng quan hệ thống: KPI cards + doanh thu 7 ngày gần nhất
@@ -583,7 +583,7 @@ Xác thực access_token trước khi vào màn hình chọn ghế
 ### WebSocket
 
 #### WS /ws/events/{event_id}/seats
-Kết nối WebSocket – server push trạng thái ghế mỗi 2 giây
+Kết nối WebSocket - server push trạng thái ghế mỗi 2 giây
 
 **Message:**
 ```json
