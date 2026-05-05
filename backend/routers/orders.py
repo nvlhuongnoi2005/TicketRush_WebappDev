@@ -3,14 +3,14 @@ from typing import List
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from core.config import settings
 
 from database import get_db
 from core.deps import get_current_user
 from models.user import User
-from models.order import Order, OrderStatus
+from models.order import Order, OrderItem, OrderStatus
 from models.seat import Seat, SeatStatus
 from schemas.order import OrderCreate, OrderOut, OrderItemOut
 from services.order_service import create_order, confirm_order
@@ -54,7 +54,12 @@ def create_new_order(
         order = create_order(db, current_user.id, body.seat_ids)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    order = db.query(Order).options(_order_opts()).filter(Order.id == order.id).first()
     return _build_order_out(order)
+
+
+def _order_opts():
+    return selectinload(Order.items).selectinload(OrderItem.seat).selectinload(Seat.section)
 
 
 @router.get("", response_model=List[OrderOut])
@@ -64,6 +69,7 @@ def list_orders(
 ):
     orders = (
         db.query(Order)
+        .options(_order_opts())
         .filter(Order.user_id == current_user.id)
         .order_by(Order.created_at.desc())
         .all()
@@ -77,10 +83,12 @@ def get_order(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    order = db.query(Order).filter(
-        Order.id == order_id,
-        Order.user_id == current_user.id,
-    ).first()
+    order = (
+        db.query(Order)
+        .options(_order_opts())
+        .filter(Order.id == order_id, Order.user_id == current_user.id)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Đơn hàng không tồn tại")
     return _build_order_out(order)
@@ -134,20 +142,53 @@ def abandon_order(
     if not order:
         return  # đơn không còn pending, bỏ qua
 
-    for item in order.items:
-        seat = db.query(Seat).filter(
-            Seat.id == item.seat_id,
+    seat_ids = [item.seat_id for item in order.items]
+    if seat_ids:
+        db.query(Seat).filter(
+            Seat.id.in_(seat_ids),
             Seat.status == SeatStatus.locked,
-        ).first()
-        if seat:
-            seat.status = SeatStatus.available
-            seat.locked_by = None
-            seat.locked_at = None
-            seat.lock_expires_at = None
+        ).update({
+            "status": SeatStatus.available,
+            "locked_by": None,
+            "locked_at": None,
+            "lock_expires_at": None,
+        }, synchronize_session=False)
 
     order.status = OrderStatus.cancelled
-
     current_user.payment_cooldown_until = datetime.utcnow() + timedelta(seconds=PAYMENT_COOLDOWN_SECONDS)
+    db.commit()
+
+
+@router.post("/{order_id}/cancel", status_code=204)
+def cancel_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    User chủ động quay lại chọn ghế — huỷ đơn, giải phóng ghế, KHÔNG bật cooldown.
+    """
+    order = db.query(Order).filter(
+        Order.id == order_id,
+        Order.user_id == current_user.id,
+        Order.status == OrderStatus.pending,
+    ).first()
+    if not order:
+        return
+
+    seat_ids = [item.seat_id for item in order.items]
+    if seat_ids:
+        db.query(Seat).filter(
+            Seat.id.in_(seat_ids),
+            Seat.status == SeatStatus.locked,
+        ).update({
+            "status": SeatStatus.available,
+            "locked_by": None,
+            "locked_at": None,
+            "lock_expires_at": None,
+        }, synchronize_session=False)
+
+    order.status = OrderStatus.cancelled
     db.commit()
 
 
@@ -162,5 +203,5 @@ def confirm_payment(
         confirm_order(db, order_id, current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    order = db.query(Order).filter(Order.id == order_id).first()
+    order = db.query(Order).options(_order_opts()).filter(Order.id == order_id).first()
     return _build_order_out(order)

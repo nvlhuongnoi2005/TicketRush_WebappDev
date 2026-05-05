@@ -33,7 +33,11 @@ def list_events(
     status: Optional[EventStatus] = Query(None),
     db: Session = Depends(get_db),
 ):
-    q = db.query(Event).filter(Event.status != EventStatus.draft)
+    q = (
+        db.query(Event)
+        .options(joinedload(Event.sections).joinedload(SeatSection.seats))
+        .filter(Event.status != EventStatus.draft)
+    )
     if search:
         q = q.filter(
             Event.title.ilike(f"%{search}%") | Event.artist.ilike(f"%{search}%")
@@ -41,9 +45,8 @@ def list_events(
     if status:
         q = q.filter(Event.status == status)
 
-    events = q.order_by(Event.event_date).all()
     result = []
-    for ev in events:
+    for ev in q.order_by(Event.event_date).all():
         all_seats = [s for sec in ev.sections for s in sec.seats]
         result.append(EventListOut(
             id=ev.id,
@@ -62,7 +65,12 @@ def list_events(
 
 @router.get("/{event_id}", response_model=EventOut)
 def get_event(event_id: int, db: Session = Depends(get_db)):
-    event = db.query(Event).filter(Event.id == event_id).first()
+    event = (
+        db.query(Event)
+        .options(joinedload(Event.sections).joinedload(SeatSection.seats))
+        .filter(Event.id == event_id)
+        .first()
+    )
     if not event:
         raise HTTPException(status_code=404, detail="Sự kiện không tồn tại")
 

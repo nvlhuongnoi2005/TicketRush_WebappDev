@@ -406,6 +406,10 @@ function AdminEvents() {
     }
   }
 
+  const handleEdit = (event) => {
+  navigate('/admin/events/create', { state: { editEvent: event } })
+}
+
   const stats = useMemo(() => {
     return events.reduce((acc, e) => {
       acc[e.status] = (acc[e.status] || 0) + 1
@@ -581,7 +585,7 @@ function AdminEvents() {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filtered.map((ev, i) => (
-                  <EventCard key={ev.id} event={ev} onEdit={setEditEvent} onDelete={setDeleteEvent} isDark={isDark} delay={i * 50} />
+                  <EventCard key={ev.id} event={ev} onEdit={handleEdit} onDelete={setDeleteEvent} isDark={isDark} delay={i * 50} />
                 ))}
               </div>
             )}

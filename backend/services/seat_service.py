@@ -75,13 +75,18 @@ def release_seat(db: Session, seat_id: int, user_id: int):
 def release_expired_seats(db: Session) -> int:
     """Gọi bởi scheduler: nhả tất cả ghế đã hết hạn giữ chỗ."""
     now = datetime.utcnow()
-    expired = db.query(Seat).filter(
+    count = db.query(Seat).filter(
         Seat.status == SeatStatus.locked,
         Seat.lock_expires_at <= now,
-    ).all()
-    for seat in expired:
-        _reset_seat(db, seat)
-    return len(expired)
+    ).update({
+        "status": SeatStatus.available,
+        "locked_by": None,
+        "locked_at": None,
+        "lock_expires_at": None,
+    }, synchronize_session=False)
+    if count:
+        db.commit()
+    return count
 
 
 def _reset_seat(db: Session, seat: Seat):

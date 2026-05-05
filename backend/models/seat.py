@@ -19,9 +19,9 @@ class Seat(Base):
     row_num = Column(Integer, nullable=False)
     col_num = Column(Integer, nullable=False)
     label = Column(String(20))                  # "A-01", "VIP-B3"
-    status = Column(SQLEnum(SeatStatus), default=SeatStatus.available, nullable=False)
-    locked_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    status = Column(SQLEnum(SeatStatus), default=SeatStatus.available, nullable=False, index=True)
+    locked_by = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     locked_at = Column(DateTime, nullable=True)
-    lock_expires_at = Column(DateTime, nullable=True)  # locked_at + 10 phút
+    lock_expires_at = Column(DateTime, nullable=True, index=True)  # locked_at + 10 phút
 
     section = relationship("SeatSection", back_populates="seats")
