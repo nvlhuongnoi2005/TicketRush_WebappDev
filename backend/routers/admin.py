@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from core.deps import get_current_admin
 from models.event import Event, EventStatus, SeatSection
-from models.order import Order, OrderStatus
+from models.order import Order, OrderItem, OrderStatus
 from models.seat import Seat, SeatStatus
 from models.ticket import Ticket
 from models.user import User
@@ -69,8 +69,6 @@ def update_event(
 
 @router.delete("/events/{event_id}", status_code=204)
 def delete_event(event_id: int, db: Session = Depends(get_db), _=Depends(get_current_admin)):
-    from models.order import OrderItem
-    from models.queue import QueueEntry
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Sự kiện không tồn tại")
@@ -202,22 +200,7 @@ def get_dashboard(db: Session = Depends(get_db), _=Depends(get_current_admin)):
     total_revenue = db.query(func.sum(Order.total_amount)).filter(Order.status == OrderStatus.paid).scalar() or 0
     pending_orders = db.query(func.count(Order.id)).filter(Order.status == OrderStatus.pending).scalar()
 
-    # Doanh thu 7 ngày gần nhất
-    recent = []
-    for i in range(6, -1, -1):
-        day = datetime.utcnow().date() - timedelta(days=i)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = day_start + timedelta(days=1)
-        rev = db.query(func.sum(Order.total_amount)).filter(
-            Order.status == OrderStatus.paid,
-            Order.paid_at >= day_start,
-            Order.paid_at < day_end,
-        ).scalar() or 0
-        cnt = db.query(func.count(Ticket.id)).filter(
-            Ticket.issued_at >= day_start,
-            Ticket.issued_at < day_end,
-        ).scalar()
-        recent.append(RevenuePoint(date=str(day), revenue=rev, tickets_sold=cnt))
+    recent = _revenue_points(db, days=7)
 
     return DashboardOut(
         total_events=total_events,
@@ -235,9 +218,6 @@ def get_event_dashboard(
     _=Depends(get_current_admin),
 ):
     """Dashboard riêng cho 1 sự kiện cụ thể."""
-    from models.order import OrderItem
-    from schemas.admin import RevenuePoint
-
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Sự kiện không tồn tại")
@@ -290,37 +270,7 @@ def get_event_dashboard(
         )
 
     # ─── Doanh thu 7 ngày của event này ──────────────────────────────────
-    recent = []
-    for i in range(6, -1, -1):
-        day = datetime.utcnow().date() - timedelta(days=i)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = day_start + timedelta(days=1)
-
-        rev = 0
-        if section_ids:
-            rev = (
-                db.query(func.coalesce(func.sum(OrderItem.price), 0))
-                .join(Seat, Seat.id == OrderItem.seat_id)
-                .join(Order, Order.id == OrderItem.order_id)
-                .filter(
-                    Seat.section_id.in_(section_ids),
-                    Order.status == OrderStatus.paid,
-                    Order.paid_at >= day_start,
-                    Order.paid_at < day_end,
-                )
-                .scalar() or 0
-            )
-
-        cnt = (
-            db.query(func.count(Ticket.id))
-            .filter(
-                Ticket.event_id == event_id,
-                Ticket.issued_at >= day_start,
-                Ticket.issued_at < day_end,
-            )
-            .scalar() or 0
-        )
-        recent.append(RevenuePoint(date=str(day), revenue=rev, tickets_sold=cnt))
+    recent = _revenue_points(db, days=7, section_ids=section_ids or None, event_id=event_id)
 
     # ─── Audience cho event này (chỉ buyers đã có vé của event) ─────────
     audience = _audience_for_event(db, event_id)
@@ -430,22 +380,7 @@ def revenue_stats(
     db: Session = Depends(get_db),
     _=Depends(get_current_admin),
 ):
-    result = []
-    for i in range(days - 1, -1, -1):
-        day = datetime.utcnow().date() - timedelta(days=i)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = day_start + timedelta(days=1)
-        rev = db.query(func.sum(Order.total_amount)).filter(
-            Order.status == OrderStatus.paid,
-            Order.paid_at >= day_start,
-            Order.paid_at < day_end,
-        ).scalar() or 0
-        cnt = db.query(func.count(Ticket.id)).filter(
-            Ticket.issued_at >= day_start,
-            Ticket.issued_at < day_end,
-        ).scalar()
-        result.append(RevenuePoint(date=str(day), revenue=rev, tickets_sold=cnt))
-    return result
+    return _revenue_points(db, days=days)
 
 
 @router.get("/stats/audience", response_model=AudienceStat)
@@ -455,8 +390,76 @@ def audience_stats(db: Session = Depends(get_db), _=Depends(get_current_admin)):
     return _compute_audience(buyers)
 
 
+def _revenue_points(
+    db: Session,
+    days: int,
+    section_ids: list = None,
+    event_id: int = None,
+) -> List[RevenuePoint]:
+    """Return daily revenue+ticket-count for the last `days` days.
+    When section_ids is given, scopes revenue to those sections only.
+    When event_id is given, scopes ticket count to that event only.
+    Uses 2 GROUP BY queries regardless of the date range.
+    """
+    start_date = datetime.utcnow().date() - timedelta(days=days - 1)
+    start_dt = datetime.combine(start_date, datetime.min.time())
+
+    if section_ids:
+        rev_rows = (
+            db.query(
+                func.date_trunc("day", Order.paid_at).label("day"),
+                func.coalesce(func.sum(OrderItem.price), 0).label("revenue"),
+            )
+            .join(OrderItem, OrderItem.order_id == Order.id)
+            .join(Seat, Seat.id == OrderItem.seat_id)
+            .filter(
+                Seat.section_id.in_(section_ids),
+                Order.status == OrderStatus.paid,
+                Order.paid_at >= start_dt,
+            )
+            .group_by(func.date_trunc("day", Order.paid_at))
+            .all()
+        )
+    else:
+        rev_rows = (
+            db.query(
+                func.date_trunc("day", Order.paid_at).label("day"),
+                func.coalesce(func.sum(Order.total_amount), 0).label("revenue"),
+            )
+            .filter(Order.status == OrderStatus.paid, Order.paid_at >= start_dt)
+            .group_by(func.date_trunc("day", Order.paid_at))
+            .all()
+        )
+
+    ticket_filter = [Ticket.issued_at >= start_dt]
+    if event_id:
+        ticket_filter.append(Ticket.event_id == event_id)
+
+    cnt_rows = (
+        db.query(
+            func.date_trunc("day", Ticket.issued_at).label("day"),
+            func.count(Ticket.id).label("count"),
+        )
+        .filter(*ticket_filter)
+        .group_by(func.date_trunc("day", Ticket.issued_at))
+        .all()
+    )
+
+    rev_map = {row.day.date(): float(row.revenue) for row in rev_rows}
+    cnt_map = {row.day.date(): int(row.count) for row in cnt_rows}
+
+    result = []
+    for i in range(days - 1, -1, -1):
+        day = datetime.utcnow().date() - timedelta(days=i)
+        result.append(RevenuePoint(
+            date=str(day),
+            revenue=rev_map.get(day, 0),
+            tickets_sold=cnt_map.get(day, 0),
+        ))
+    return result
+
+
 def _event_out(event: Event, db: Session = None) -> EventOut:
-    from schemas.event import SeatSectionOut
     sections = []
     for sec in event.sections:
         total = len(sec.seats)
@@ -473,8 +476,6 @@ def _event_out(event: Event, db: Session = None) -> EventOut:
             Ticket.event_id == event.id
         ).scalar() or 0
         
-        # Tính revenue từ OrderItem paid
-        from models.order import OrderItem
         section_ids = [sec.id for sec in event.sections]
         if section_ids:
             revenue = db.query(
@@ -516,17 +517,10 @@ async def ai_insights(
         total_sold = db.query(func.count(Ticket.id)).scalar() or 0
         total_revenue = db.query(func.sum(Order.total_amount)).filter(Order.status == OrderStatus.paid).scalar() or 0
 
-        # 7 ngày
-        recent = []
-        for i in range(6, -1, -1):
-            day = datetime.utcnow().date() - timedelta(days=i)
-            ds = datetime.combine(day, datetime.min.time())
-            de = ds + timedelta(days=1)
-            rev = db.query(func.sum(Order.total_amount)).filter(
-                Order.status == OrderStatus.paid,
-                Order.paid_at >= ds, Order.paid_at < de,
-            ).scalar() or 0
-            recent.append({"date": str(day), "revenue": int(rev)})
+        recent = [
+            {"date": r.date, "revenue": int(r.revenue)}
+            for r in _revenue_points(db, days=7)
+        ]
 
         # Audience
         buyers = db.query(User).join(Ticket, Ticket.user_id == User.id).distinct().all()

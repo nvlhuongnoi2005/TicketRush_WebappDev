@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import List
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from core.config import settings
 from models.order import Order, OrderItem, OrderStatus
@@ -63,11 +63,16 @@ def confirm_order(db: Session, order_id: int, user_id: int) -> List[Ticket]:
     """
     Người dùng xác nhận thanh toán → ghế → sold, tạo vé + QR.
     """
-    order = db.query(Order).filter(
-        Order.id == order_id,
-        Order.user_id == user_id,
-        Order.status == OrderStatus.pending,
-    ).first()
+    order = (
+        db.query(Order)
+        .options(selectinload(Order.items).selectinload(OrderItem.seat).selectinload(Seat.section))
+        .filter(
+            Order.id == order_id,
+            Order.user_id == user_id,
+            Order.status == OrderStatus.pending,
+        )
+        .first()
+    )
     if not order:
         raise ValueError("Đơn hàng không tồn tại hoặc không thuộc về bạn")
     if order.expires_at and datetime.utcnow() > order.expires_at:
@@ -75,7 +80,7 @@ def confirm_order(db: Session, order_id: int, user_id: int) -> List[Ticket]:
 
     tickets = []
     for item in order.items:
-        seat = db.query(Seat).filter(Seat.id == item.seat_id).first()
+        seat = item.seat
         if not seat or seat.status != SeatStatus.locked:
             raise ValueError(f"Ghế {item.seat_id} không còn khả dụng")
 
@@ -111,26 +116,38 @@ def confirm_order(db: Session, order_id: int, user_id: int) -> List[Ticket]:
 def cancel_expired_orders(db: Session) -> int:
     """Gọi bởi scheduler: hủy đơn pending đã quá 10 phút và giải phóng seat lock."""
     now = datetime.utcnow()
-    expired_orders = db.query(Order).filter(
-        Order.status == OrderStatus.pending,
-        Order.expires_at <= now,
-    ).all()
+    order_ids = [
+        row[0]
+        for row in db.query(Order.id).filter(
+            Order.status == OrderStatus.pending,
+            Order.expires_at <= now,
+        ).all()
+    ]
 
-    count = 0
-    for order in expired_orders:
-        # Release each locked seat atomically in the same transaction
-        for item in order.items:
-            seat = db.query(Seat).filter(
-                Seat.id == item.seat_id,
-                Seat.status == SeatStatus.locked,
-            ).first()
-            if seat:
-                seat.status = SeatStatus.available
-                seat.locked_by = None
-                seat.locked_at = None
-                seat.lock_expires_at = None
-        order.status = OrderStatus.cancelled
-        count += 1
+    if not order_ids:
+        return 0
+
+    seat_ids = [
+        row[0]
+        for row in db.query(OrderItem.seat_id).filter(
+            OrderItem.order_id.in_(order_ids)
+        ).all()
+    ]
+
+    if seat_ids:
+        db.query(Seat).filter(
+            Seat.id.in_(seat_ids),
+            Seat.status == SeatStatus.locked,
+        ).update({
+            "status": SeatStatus.available,
+            "locked_by": None,
+            "locked_at": None,
+            "lock_expires_at": None,
+        }, synchronize_session=False)
+
+    db.query(Order).filter(Order.id.in_(order_ids)).update(
+        {"status": OrderStatus.cancelled}, synchronize_session=False
+    )
 
     db.commit()
-    return count
+    return len(order_ids)
