@@ -361,8 +361,19 @@ function Banner() {
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         Xem chi tiết
-                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="transition-transform group-hover:translate-x-0.5">
-                          <path d="M2 7h10M8 3l4 4-4 4" />
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="transition-transform group-hover:scale-110"
+                        >
+                          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                          <circle cx="12" cy="12" r="3" />
                         </svg>
                       </span>
                       {/* sweep shimmer on hover */}
