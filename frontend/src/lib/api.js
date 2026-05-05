@@ -3,7 +3,7 @@
  * Tự động đính kèm JWT token và parse JSON lỗi thành Error message.
  */
 
-const BASE = '/api'
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 function getToken() {
   return localStorage.getItem('ticketrush_token')
