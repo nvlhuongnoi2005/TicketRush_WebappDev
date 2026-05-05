@@ -10,6 +10,7 @@ Cấu hình trong backend/.env:
   FRONTEND_URL=http://localhost:5173
 """
 import smtplib
+from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -31,7 +32,7 @@ def _send(to: str, subject: str, html: str) -> None:
         )
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
+    msg["Subject"] = Header(subject, "utf-8")
     msg["From"] = settings.SMTP_FROM
     msg["To"] = to
     msg.attach(MIMEText(html, "html", "utf-8"))
@@ -39,8 +40,9 @@ def _send(to: str, subject: str, html: str) -> None:
     with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
         server.ehlo()
         server.starttls()
+        server.ehlo()  # RFC 4954: bắt buộc gọi lại sau STARTTLS
         server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-        server.sendmail(settings.SMTP_USER, to, msg.as_string())
+        server.sendmail(settings.SMTP_USER, to, msg.as_bytes())
 
 
 def send_reset_password_email(to: str, full_name: str, reset_token: str) -> None:

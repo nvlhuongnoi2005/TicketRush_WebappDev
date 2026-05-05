@@ -159,6 +159,39 @@ def abandon_order(
     db.commit()
 
 
+@router.post("/{order_id}/cancel", status_code=204)
+def cancel_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    User chủ động quay lại chọn ghế — huỷ đơn, giải phóng ghế, KHÔNG bật cooldown.
+    """
+    order = db.query(Order).filter(
+        Order.id == order_id,
+        Order.user_id == current_user.id,
+        Order.status == OrderStatus.pending,
+    ).first()
+    if not order:
+        return
+
+    seat_ids = [item.seat_id for item in order.items]
+    if seat_ids:
+        db.query(Seat).filter(
+            Seat.id.in_(seat_ids),
+            Seat.status == SeatStatus.locked,
+        ).update({
+            "status": SeatStatus.available,
+            "locked_by": None,
+            "locked_at": None,
+            "lock_expires_at": None,
+        }, synchronize_session=False)
+
+    order.status = OrderStatus.cancelled
+    db.commit()
+
+
 @router.post("/{order_id}/confirm", response_model=OrderOut)
 def confirm_payment(
     order_id: int,
